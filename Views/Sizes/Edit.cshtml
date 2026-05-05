@@ -1,0 +1,226 @@
+@model TailorApp.Models.Size
+@{ ViewData["Title"] = "Edit Measurement"; }
+
+<div class="mb-8">
+    <a asp-action="Details" asp-route-id="@Model.SizeID" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 mb-4 transition-colors">
+        <span class="mr-1">←</span> Back to Measurement Details
+    </a>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-white">Edit Measurement</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Update record #@Model.RegisterNo for @ViewBag.CustomerName</p>
+        </div>
+        <form asp-action="Delete" asp-route-id="@Model.SizeID" method="post" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this measurement?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/10 dark:hover:bg-red-900/20 dark:text-red-400 font-medium rounded-xl transition-colors flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg> Delete Measurement
+            </button>
+        </form>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post" class="space-y-6">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="SizeID" />
+    <input type="hidden" asp-for="Customer_ID" />
+    <input type="hidden" asp-for="RegisterNo" />
+    <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4"></div>
+
+    <!-- Kameez Section -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>👘</span> Kameez Measurements
+            </h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div>
+                <label asp-for="Lambai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lambai (Length) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Lambai" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Lambai" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="Bazo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bazo (Sleeve) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Bazo" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Bazo" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="BazoType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bazo Type</label>
+                <select asp-for="BazoType" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                    <option value="1">Sada (Simple)</option>
+                    <option value="2">Kaf</option>
+                </select>
+            </div>
+
+            <div class="md:col-span-2 lg:col-span-3">
+                <label asp-for="BazoDetail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bazo Detail</label>
+                <input asp-for="BazoDetail" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+            </div>
+
+            <div>
+                <label asp-for="Tera" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tera (Shoulder) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Tera" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Tera" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="Chati" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chati (Chest) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Chati" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Chati" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="Kamar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kamar (Waist) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Kamar" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Kamar" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="Calar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calar (Collar) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Calar" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Calar" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="CalarType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calar Type</label>
+                <select asp-for="CalarType" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                    <option value="1">Calar</option>
+                    <option value="2">Ban</option>
+                </select>
+            </div>
+
+            <div>
+                <label asp-for="CalarDetail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calar Detail</label>
+                <input asp-for="CalarDetail" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+            </div>
+
+            <div>
+                <label asp-for="Ghera" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ghera (Hem) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Ghera" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Ghera" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <div>
+                <label asp-for="GheraType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ghera Type</label>
+                <select asp-for="GheraType" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                    <option value="1">Gol (Round)</option>
+                    <option value="2">Choras (Square)</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Shalwar Section -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>👖</span> Shalwar Measurements
+            </h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+                <label asp-for="ShalwarLambai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Shalwar Lambai <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="ShalwarLambai" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="ShalwarLambai" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+            <div>
+                <label asp-for="Pancha" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pancha (Bottom) <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input asp-for="Pancha" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                </div>
+                <span asp-validation-for="Pancha" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options Section -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>⚙️</span> Options & Pockets
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <input asp-for="IsDoubleSidePocket" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Double Side Pocket</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <input asp-for="IsFrontPocket" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Front Pocket</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <input asp-for="IsShalwarPocket" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Shalwar Pocket</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <input asp-for="IsCheckPatiKaj" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Pati Kaj</span>
+                </label>
+            </div>
+            
+            <div class="sm:w-1/2">
+                <label asp-for="Pati" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pati (Placket)</label>
+                <input asp-for="Pati" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Section -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>📝</span> Design & Notes
+            </h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label asp-for="Design" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Design</label>
+                <textarea asp-for="Design" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"></textarea>
+            </div>
+            <div>
+                <label asp-for="OtherDetails" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Other Details</label>
+                <textarea asp-for="OtherDetails" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-2">
+        <a asp-action="Details" asp-route-id="@Model.SizeID" class="px-6 py-3 rounded-xl font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
+            Cancel
+        </a>
+        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 transition-colors flex items-center gap-2">
+            <span>✓</span> Save Changes
+        </button>
+    </div>
+</form>

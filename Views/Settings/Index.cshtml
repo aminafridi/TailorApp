@@ -1,0 +1,162 @@
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="mb-8">
+    <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-white">Settings</h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1">Customize your TailorShop experience</p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Appearance Section -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>🎨</span> Appearance
+            </h2>
+        </div>
+        
+        <div class="p-6 space-y-8">
+            <!-- Theme Toggle -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Theme Mode</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="theme-btn group flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none" data-set-theme="light">
+                        <span class="text-2xl group-hover:scale-110 transition-transform">☀️</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Light Mode</span>
+                    </button>
+                    <button class="theme-btn group flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none" data-set-theme="dark">
+                        <span class="text-2xl group-hover:scale-110 transition-transform">🌙</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Dark Mode</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Color Toggle -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Accent Color</label>
+                <div class="grid grid-cols-3 gap-4">
+                    <button class="color-btn relative p-3 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none overflow-hidden text-sm font-bold text-gray-900 dark:text-white" data-set-color="gold">
+                        <div class="absolute left-0 top-0 bottom-0 w-2 bg-yellow-500"></div>
+                        <span class="ml-2">Gold</span>
+                    </button>
+                    <button class="color-btn relative p-3 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none overflow-hidden text-sm font-bold text-gray-900 dark:text-white" data-set-color="blue">
+                        <div class="absolute left-0 top-0 bottom-0 w-2 bg-blue-500"></div>
+                        <span class="ml-2">Blue</span>
+                    </button>
+                    <button class="color-btn relative p-3 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none overflow-hidden text-sm font-bold text-gray-900 dark:text-white" data-set-color="green">
+                        <div class="absolute left-0 top-0 bottom-0 w-2 bg-green-500"></div>
+                        <span class="ml-2">Green</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layout Toggle -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Navigation Layout</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="layout-btn group flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none" data-set-layout="topbar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 group-hover:text-primary-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Top Navigation</span>
+                    </button>
+                    <button class="layout-btn group flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 hover:border-gray-300 dark:hover:border-gray-700 transition-all focus:outline-none" data-set-layout="sidebar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 group-hover:text-primary-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Side Menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Active State Styling */
+    .theme-btn.active {
+        border-color: var(--primary-500) !important;
+        background-color: var(--primary-50) !important;
+    }
+    .dark .theme-btn.active {
+        background-color: rgba(var(--primary-900), 0.2) !important;
+    }
+    
+    .color-btn.active, .layout-btn.active {
+        border-color: var(--primary-500) !important;
+        background-color: var(--primary-50) !important;
+    }
+    .dark .color-btn.active, .dark .layout-btn.active {
+        background-color: rgba(var(--primary-900), 0.2) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Elements
+        const themeBtns = document.querySelectorAll('[data-set-theme]');
+        const colorBtns = document.querySelectorAll('[data-set-color]');
+        const layoutBtns = document.querySelectorAll('[data-set-layout]');
+        
+        // Initial State
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const currentColor = localStorage.getItem('color') || 'gold';
+        const currentLayout = localStorage.getItem('layout') || 'topbar';
+        
+        // Set Active States
+        document.querySelector(`[data-set-theme="${currentTheme}"]`)?.classList.add('active');
+        document.querySelector(`[data-set-color="${currentColor}"]`)?.classList.add('active');
+        document.querySelector(`[data-set-layout="${currentLayout}"]`)?.classList.add('active');
+
+        // Theme Toggle
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newTheme = btn.getAttribute('data-set-theme');
+                
+                // Call global function from _Layout.cshtml
+                if (typeof applyTheme === 'function') {
+                    applyTheme(newTheme);
+                }
+                localStorage.setItem('theme', newTheme);
+                
+                // Update active buttons
+                themeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Color Toggle
+        colorBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newColor = btn.getAttribute('data-set-color');
+                
+                // Call global function from _Layout.cshtml
+                if (typeof applyColor === 'function') {
+                    applyColor(newColor);
+                }
+                localStorage.setItem('color', newColor);
+                
+                // Update active buttons
+                colorBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Layout Toggle
+        layoutBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newLayout = btn.getAttribute('data-set-layout');
+                
+                // Call global function from _Layout.cshtml if exists
+                if (typeof applyLayout === 'function') {
+                    applyLayout(newLayout);
+                }
+                
+                // Update body class dynamically
+                document.body.className = document.body.className.replace(/layout-\w+/, 'layout-' + newLayout);
+                localStorage.setItem('layout', newLayout);
+                
+                // Update active buttons
+                layoutBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    });
+</script>

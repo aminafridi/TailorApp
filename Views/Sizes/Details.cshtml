@@ -1,0 +1,163 @@
+@model TailorApp.Models.Size
+@{ ViewData["Title"] = $"Measurement #{Model.RegisterNo}"; }
+
+<div class="mb-8">
+    <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 mb-4 transition-colors">
+        <span class="mr-1">←</span> Back to @Model.CustomerName
+    </a>
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-white">Measurement #@Model.RegisterNo</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Full measurement details for @Model.CustomerName.</p>
+        </div>
+        <div>
+            <a asp-controller="Sizes" asp-action="Edit" asp-route-id="@Model.SizeID" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg> Edit Measurement
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Kameez Section -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <span>👘</span> Kameez Measurements
+            </h3>
+        </div>
+        <div class="p-6 flex-1">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Lambai (Length)</dt>
+                    <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Lambai<span class="text-sm font-normal text-gray-500">"</span></dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Tera (Shoulder)</dt>
+                    <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Tera<span class="text-sm font-normal text-gray-500">"</span></dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Bazo (Sleeve)</dt>
+                    <dd class="mt-1 flex items-baseline gap-2">
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Bazo<span class="text-sm font-normal text-gray-500">"</span></span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-md">@Model.BazoTypeName @(Model.BazoDetail != null ? $"({Model.BazoDetail})" : "")</span>
+                    </dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Calar (Collar)</dt>
+                    <dd class="mt-1 flex items-baseline gap-2">
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Calar<span class="text-sm font-normal text-gray-500">"</span></span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-md">@Model.CalarTypeName @(Model.CalarDetail != null ? $"({Model.CalarDetail})" : "")</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Chati (Chest)</dt>
+                    <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Chati<span class="text-sm font-normal text-gray-500">"</span></dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Kamar (Waist)</dt>
+                    <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Kamar<span class="text-sm font-normal text-gray-500">"</span></dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Ghera (Hem)</dt>
+                    <dd class="mt-1 flex items-baseline gap-2">
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Ghera<span class="text-sm font-normal text-gray-500">"</span></span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-md">@Model.GheraTypeName</span>
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <!-- Shalwar Section -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+            <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span>👖</span> Shalwar Measurements
+                </h3>
+            </div>
+            <div class="p-6">
+                <dl class="grid grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Shalwar Lambai</dt>
+                        <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">@Model.ShalwarLambai<span class="text-sm font-normal text-gray-500">"</span></dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pancha (Bottom)</dt>
+                        <dd class="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">@Model.Pancha<span class="text-sm font-normal text-gray-500">"</span></dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Options Section -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+            <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span>⚙️</span> Options & Pockets
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex items-center gap-2">
+                        @if (Model.IsDoubleSidePocket) { <span class="text-green-500 text-lg">✓</span> } else { <span class="text-gray-300 dark:text-gray-600 text-lg">✗</span> }
+                        <span class="text-sm font-medium @(Model.IsDoubleSidePocket ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 line-through decoration-gray-300 dark:decoration-gray-700")">Double Side Pocket</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if (Model.IsFrontPocket) { <span class="text-green-500 text-lg">✓</span> } else { <span class="text-gray-300 dark:text-gray-600 text-lg">✗</span> }
+                        <span class="text-sm font-medium @(Model.IsFrontPocket ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 line-through decoration-gray-300 dark:decoration-gray-700")">Front Pocket</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if (Model.IsShalwarPocket) { <span class="text-green-500 text-lg">✓</span> } else { <span class="text-gray-300 dark:text-gray-600 text-lg">✗</span> }
+                        <span class="text-sm font-medium @(Model.IsShalwarPocket ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 line-through decoration-gray-300 dark:decoration-gray-700")">Shalwar Pocket</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if (Model.IsCheckPatiKaj) { <span class="text-green-500 text-lg">✓</span> } else { <span class="text-gray-300 dark:text-gray-600 text-lg">✗</span> }
+                        <span class="text-sm font-medium @(Model.IsCheckPatiKaj ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 line-through decoration-gray-300 dark:decoration-gray-700")">Pati Kaj</span>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Pati))
+                {
+                    <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Pati Description</span>
+                        <span class="text-sm text-gray-900 dark:text-gray-100">@Model.Pati</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Notes -->
+        @if (!string.IsNullOrEmpty(Model.Design) || !string.IsNullOrEmpty(Model.OtherDetails))
+        {
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+                <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span>📝</span> Notes & Design
+                    </h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    @if (!string.IsNullOrEmpty(Model.Design))
+                    {
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Design Style</span>
+                            <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm text-gray-900 dark:text-gray-200 border border-gray-100 dark:border-gray-800">
+                                @Model.Design
+                            </div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.OtherDetails))
+                    {
+                        <div>
+                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400 block mb-1">Other Details</span>
+                            <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm text-gray-900 dark:text-gray-200 border border-gray-100 dark:border-gray-800">
+                                @Model.OtherDetails
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

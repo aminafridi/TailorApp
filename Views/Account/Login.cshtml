@@ -1,0 +1,119 @@
+@model TailorApp.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In | TailorShop Premium</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: 'var(--primary-50)',
+                            100: 'var(--primary-100)',
+                            400: 'var(--primary-400)',
+                            500: 'var(--primary-500)',
+                            600: 'var(--primary-600)',
+                            700: 'var(--primary-700)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        const palettes = {
+            gold: { 50: '#fefce8', 100: '#fef9c3', 400: '#facc15', 500: '#eab308', 600: '#ca8a04', 700: '#a16207' },
+            blue: { 50: '#eff6ff', 100: '#dbeafe', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+            green: { 50: '#f0fdf4', 100: '#dcfce7', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' }
+        };
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        const savedColor = localStorage.getItem('color') || 'gold';
+        
+        if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+        
+        const palette = palettes[savedColor] || palettes.gold;
+        const root = document.documentElement;
+        root.style.setProperty('--primary-50', palette[50]);
+        root.style.setProperty('--primary-100', palette[100]);
+        root.style.setProperty('--primary-400', palette[400]);
+        root.style.setProperty('--primary-500', palette[500]);
+        root.style.setProperty('--primary-600', palette[600]);
+        root.style.setProperty('--primary-700', palette[700]);
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 min-h-screen flex items-center justify-center font-sans antialiased selection:bg-primary-500 selection:text-white p-4">
+
+    <!-- Decorative Background blobs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary-400/20 dark:bg-primary-900/20 blur-[100px]"></div>
+        <div class="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] rounded-full bg-primary-500/10 dark:bg-primary-800/20 blur-[100px]"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Brand -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 text-white shadow-xl shadow-primary-500/30 mb-4">
+                <span class="text-3xl">✂</span>
+            </div>
+            <h1 class="text-3xl font-serif font-bold tracking-tight">TailorShop</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Sign in to your premium workspace</p>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 p-8 rounded-2xl shadow-2xl">
+            
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-md">
+                    <div class="text-red-700 dark:text-red-400 text-sm font-medium">
+                        @Html.ValidationSummary(true, "")
+                    </div>
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post" class="space-y-5">
+                @Html.AntiForgeryToken()
+                
+                <div>
+                    <label asp-for="LoginName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+                    <input asp-for="LoginName" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="Enter your username" autofocus autocomplete="username" />
+                    <span asp-validation-for="LoginName" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="Password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                    <input asp-for="Password" type="password" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900">
+                    Sign In
+                </button>
+            </form>
+        </div>
+
+        <p class="text-center text-gray-500 dark:text-gray-500 text-sm mt-8">
+            &copy; @DateTime.Now.Year TailorShop Management. All rights reserved.
+        </p>
+    </div>
+
+</body>
+</html>
