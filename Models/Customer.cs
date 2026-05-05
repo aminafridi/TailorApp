@@ -10,4 +10,5 @@ public class Customer
 
     // Computed
     public int TotalMeasurements { get; set; }
+    public string? RegisterNo { get; set; }
 }

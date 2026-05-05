@@ -8,12 +8,12 @@ namespace TailorApp.Controllers;
 [Authorize]
 public class CustomersController(ICustomerRepository customerRepo, ISizeRepository sizeRepo) : Controller
 {
-    // GET: Customers?search=...
-    public async Task<IActionResult> Index(string? search)
+    // GET: Customers?search=...&page=1&pageSize=50
+    public async Task<IActionResult> Index(string? search, int page = 1, int pageSize = 50)
     {
         ViewBag.Search = search;
-        var customers = await customerRepo.GetAllAsync(search);
-        return View(customers);
+        var pagedResult = await customerRepo.GetPagedAsync(search, page, pageSize);
+        return View(pagedResult);
     }
 
     // GET: Customers/Details/5

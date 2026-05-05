@@ -8,23 +8,50 @@ public class CustomerRepository(string connectionString) : ICustomerRepository
 {
     private SqlConnection CreateConnection() => new(connectionString);
 
-    public async Task<IEnumerable<Customer>> GetAllAsync(string? search = null)
+    public async Task<PagedResult<Customer>> GetPagedAsync(string? search, int page = 1, int pageSize = 50)
     {
         using var conn = CreateConnection();
         const string sql = """
-            SELECT 
-                c.CustomerID, c.CustomerName, c.MobileNo1, c.MobileNo2, c.Status,
-                COUNT(s.SizeID) AS TotalMeasurements
+            DECLARE @TotalCount INT;
+            
+            SELECT @TotalCount = COUNT(*)
             FROM Customer c
-            LEFT JOIN Size s ON s.Customer_ID = c.CustomerID
             WHERE (@Search IS NULL 
                    OR c.CustomerName LIKE '%' + @Search + '%'
                    OR c.MobileNo1 LIKE '%' + @Search + '%'
-                   OR c.MobileNo2 LIKE '%' + @Search + '%')
-            GROUP BY c.CustomerID, c.CustomerName, c.MobileNo1, c.MobileNo2, c.Status
-            ORDER BY c.CustomerName
+                   OR c.MobileNo2 LIKE '%' + @Search + '%'
+                   OR EXISTS (SELECT 1 FROM Size s WHERE s.Customer_ID = c.CustomerID AND CAST(s.RegisterNo AS VARCHAR) LIKE '%' + @Search + '%'));
+                   
+            SELECT ISNULL(@TotalCount, 0);
+
+            SELECT 
+                c.CustomerID, c.CustomerName, c.MobileNo1, c.MobileNo2, c.Status,
+                (SELECT COUNT(*) FROM Size s WHERE s.Customer_ID = c.CustomerID) AS TotalMeasurements,
+                (SELECT STRING_AGG(rn, ', ') FROM (SELECT DISTINCT CAST(RegisterNo AS VARCHAR) AS rn FROM Size s WHERE s.Customer_ID = c.CustomerID) t) AS RegisterNo
+            FROM Customer c
+            WHERE (@Search IS NULL 
+                   OR c.CustomerName LIKE '%' + @Search + '%'
+                   OR c.MobileNo1 LIKE '%' + @Search + '%'
+                   OR c.MobileNo2 LIKE '%' + @Search + '%'
+                   OR EXISTS (SELECT 1 FROM Size s WHERE s.Customer_ID = c.CustomerID AND CAST(s.RegisterNo AS VARCHAR) LIKE '%' + @Search + '%'))
+            ORDER BY c.CustomerID DESC
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
             """;
-        return await conn.QueryAsync<Customer>(sql, new { Search = search });
+
+        int offset = (page - 1) * pageSize;
+        int queryPageSize = pageSize <= 0 ? int.MaxValue : pageSize; // handle "all"
+
+        using var multi = await conn.QueryMultipleAsync(sql, new { Search = search, Offset = offset, PageSize = queryPageSize });
+        var totalCount = await multi.ReadSingleAsync<int>();
+        var items = await multi.ReadAsync<Customer>();
+
+        return new PagedResult<Customer>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize <= 0 ? totalCount : pageSize
+        };
     }
 
     public async Task<Customer?> GetByIdAsync(int id)

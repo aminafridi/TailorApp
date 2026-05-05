@@ -1,4 +1,4 @@
-@model IEnumerable<TailorApp.Models.Customer>
+@model TailorApp.Models.PagedResult<TailorApp.Models.Customer>
 @{
     ViewData["Title"] = "Customers Directory";
 }
@@ -15,7 +15,7 @@
     </div>
 </div>
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-12 text-center max-w-2xl mx-auto mt-8 shadow-sm">
         <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 mb-4">
@@ -44,11 +44,11 @@ else
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                 <span>Show</span>
-                <select id="pageSizeSelect" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-2 py-1.5 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none">
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="200">200</option>
-                    <option value="all">All</option>
+                <select id="pageSizeSelect" onchange="window.location.href='?search=@(ViewBag.Search)&page=1&pageSize=' + this.value" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-2 py-1.5 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none">
+                    @Html.Raw(Model.PageSize == 50 ? "<option value=\"50\" selected>50</option>" : "<option value=\"50\">50</option>")
+                    @Html.Raw(Model.PageSize == 100 ? "<option value=\"100\" selected>100</option>" : "<option value=\"100\">100</option>")
+                    @Html.Raw(Model.PageSize == 200 ? "<option value=\"200\" selected>200</option>" : "<option value=\"200\">200</option>")
+                    @Html.Raw(Model.PageSize > 200 ? "<option value=\"-1\" selected>All</option>" : "<option value=\"-1\">All</option>")
                 </select>
                 <span>entries</span>
             </div>
@@ -76,6 +76,7 @@ else
                     <tr class="bg-gray-50 dark:bg-gray-950/50 border-b border-gray-200 dark:border-gray-800 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
                         <th class="px-6 py-4 w-16 text-center">#</th>
                         <th class="px-6 py-4">Customer Name</th>
+                        <th class="px-6 py-4">Register No.</th>
                         <th class="px-6 py-4">Mobile Contacts</th>
                         <th class="px-6 py-4 text-center">Measurements</th>
                         <th class="px-6 py-4 text-center">Status</th>
@@ -83,8 +84,8 @@ else
                     </tr>
                 </thead>
                 <tbody id="customersTableBody" class="divide-y divide-gray-200 dark:divide-gray-800">
-                    @{ int rowNum = 1; }
-                    @foreach (var c in Model)
+                    @{ int rowNum = Model.TotalCount == 0 ? 1 : ((Model.Page - 1) * Model.PageSize) + 1; }
+                    @foreach (var c in Model.Items)
                     {
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
                             <td class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400 font-medium">
@@ -97,6 +98,20 @@ else
                                     </div>
                                     <span class="font-medium text-gray-900 dark:text-gray-100">@c.CustomerName</span>
                                 </a>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    @if (!string.IsNullOrEmpty(c.RegisterNo))
+                                    {
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                                            @c.RegisterNo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-400 italic text-xs">N/A</span>
+                                    }
+                                </div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-700 dark:text-gray-300">
@@ -151,105 +166,41 @@ else
         <!-- Pagination Controls -->
         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950/50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-sm text-gray-500 dark:text-gray-400">
-                Showing <span id="pageInfoStart" class="font-medium text-gray-900 dark:text-white">1</span> to <span id="pageInfoEnd" class="font-medium text-gray-900 dark:text-white">50</span> of <span id="pageInfoTotal" class="font-medium text-gray-900 dark:text-white">0</span> entries
+                @{
+                    int startRecord = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+                    int endRecord = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+                    if (Model.PageSize > 200) endRecord = Model.TotalCount;
+                }
+                Showing <span class="font-medium text-gray-900 dark:text-white">@startRecord</span> to <span class="font-medium text-gray-900 dark:text-white">@endRecord</span> of <span class="font-medium text-gray-900 dark:text-white">@Model.TotalCount</span> entries
             </div>
 
             <div class="flex items-center gap-1">
-                <button id="btnPrevPage" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    Previous
-                </button>
-                <div id="paginationNumbers" class="flex gap-1 hidden sm:flex">
-                    <!-- Page numbers will be injected here -->
-                </div>
-                <button id="btnNextPage" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                    Next
-                </button>
+                @if (Model.Page > 1)
+                {
+                    <a asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        Previous
+                    </a>
+                }
+                else
+                {
+                    <button disabled class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 cursor-not-allowed transition-colors">
+                        Previous
+                    </button>
+                }
+
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <a asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        Next
+                    </a>
+                }
+                else
+                {
+                    <button disabled class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-800 cursor-not-allowed transition-colors">
+                        Next
+                    </button>
+                }
             </div>
         </div>
     </div>
-
-    @section Scripts {
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const tbody = document.getElementById('customersTableBody');
-                if (!tbody) return;
-                
-                const rows = Array.from(tbody.querySelectorAll('tr'));
-                const totalRows = rows.length;
-                
-                let currentPage = 1;
-                let pageSize = 50;
-                
-                const pageSizeSelect = document.getElementById('pageSizeSelect');
-                const btnPrev = document.getElementById('btnPrevPage');
-                const btnNext = document.getElementById('btnNextPage');
-                const pageInfoStart = document.getElementById('pageInfoStart');
-                const pageInfoEnd = document.getElementById('pageInfoEnd');
-                const pageInfoTotal = document.getElementById('pageInfoTotal');
-                
-                function renderTable() {
-                    const totalPages = pageSize === 'all' ? 1 : Math.ceil(totalRows / pageSize);
-                    
-                    if (currentPage > totalPages) currentPage = totalPages;
-                    if (currentPage < 1) currentPage = 1;
-
-                    let start = 0;
-                    let end = totalRows;
-
-                    if (pageSize !== 'all') {
-                        start = (currentPage - 1) * pageSize;
-                        end = start + parseInt(pageSize, 10);
-                        if (end > totalRows) end = totalRows;
-                    }
-
-                    rows.forEach((row, index) => {
-                        if (index >= start && index < end) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-
-                    // Update Info
-                    pageInfoTotal.textContent = totalRows;
-                    if (totalRows === 0) {
-                        pageInfoStart.textContent = 0;
-                        pageInfoEnd.textContent = 0;
-                    } else {
-                        pageInfoStart.textContent = start + 1;
-                        pageInfoEnd.textContent = end;
-                    }
-
-                    // Update Buttons
-                    btnPrev.disabled = currentPage === 1;
-                    btnNext.disabled = currentPage === totalPages || totalPages === 0;
-                }
-
-                pageSizeSelect.addEventListener('change', (e) => {
-                    const val = e.target.value;
-                    pageSize = val === 'all' ? 'all' : parseInt(val, 10);
-                    currentPage = 1;
-                    renderTable();
-                });
-
-                btnPrev.addEventListener('click', () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        renderTable();
-                    }
-                });
-
-                btnNext.addEventListener('click', () => {
-                    const totalPages = pageSize === 'all' ? 1 : Math.ceil(totalRows / pageSize);
-                    if (currentPage < totalPages) {
-                        currentPage++;
-                        renderTable();
-                    }
-                });
-
-                // Init
-                renderTable();
-            });
-        </script>
-    }
 }
