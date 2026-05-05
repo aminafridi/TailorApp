@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Dapper;
 using TailorApp.Models;
+using System.Data;
 
 namespace TailorApp.Repositories
 {
@@ -19,12 +20,9 @@ namespace TailorApp.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             
-            var sql = @"
-                SELECT UserID, Name, LoginName, Password, Status
-                FROM Users
-                WHERE LoginName = @LoginName AND Password = @Password AND Status = 1";
-
-            return await connection.QuerySingleOrDefaultAsync<User>(sql, new { LoginName = loginName, Password = password });
+            return await connection.QuerySingleOrDefaultAsync<User>("sp_Users_Authenticate", 
+                new { LoginName = loginName, Password = password }, 
+                commandType: CommandType.StoredProcedure);
         }
     }
 }

@@ -2,20 +2,14 @@
 @{ ViewData["Title"] = "Edit Measurement"; }
 
 <div class="mb-8">
-    <a asp-action="Details" asp-route-id="@Model.SizeID" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 mb-4 transition-colors">
-        <span class="mr-1">←</span> Back to Measurement Details
+    <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 mb-4 transition-colors">
+        <span class="mr-1">←</span> Back to Customer Details
     </a>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-white">Edit Measurement</h1>
             <p class="text-gray-500 dark:text-gray-400 mt-1">Update record #@Model.RegisterNo for @ViewBag.CustomerName</p>
         </div>
-        <form asp-action="Delete" asp-route-id="@Model.SizeID" method="post" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete this measurement?');">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/10 dark:hover:bg-red-900/20 dark:text-red-400 font-medium rounded-xl transition-colors flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg> Delete Measurement
-            </button>
-        </form>
     </div>
 </div>
 
@@ -216,7 +210,7 @@
     </div>
 
     <div class="flex justify-end gap-3 pt-2">
-        <a asp-action="Details" asp-route-id="@Model.SizeID" class="px-6 py-3 rounded-xl font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
+        <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="px-6 py-3 rounded-xl font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
             Cancel
         </a>
         <button type="submit" class="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 transition-colors flex items-center gap-2">

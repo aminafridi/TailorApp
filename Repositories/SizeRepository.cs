@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using TailorApp.Models;
+using System.Data;
 
 namespace TailorApp.Repositories;
 
@@ -11,81 +12,63 @@ public class SizeRepository(string connectionString) : ISizeRepository
     public async Task<IEnumerable<Size>> GetByCustomerIdAsync(int customerId)
     {
         using var conn = CreateConnection();
-        const string sql = """
-            SELECT s.*, c.CustomerName
-            FROM Size s
-            INNER JOIN Customer c ON c.CustomerID = s.Customer_ID
-            WHERE s.Customer_ID = @CustomerId
-            ORDER BY s.RegisterNo DESC
-            """;
-        return await conn.QueryAsync<Size>(sql, new { CustomerId = customerId });
+        return await conn.QueryAsync<Size>("sp_Sizes_GetByCustomerId", 
+            new { CustomerId = customerId }, 
+            commandType: CommandType.StoredProcedure);
     }
 
     public async Task<Size?> GetByIdAsync(int sizeId)
     {
         using var conn = CreateConnection();
-        const string sql = """
-            SELECT s.*, c.CustomerName
-            FROM Size s
-            INNER JOIN Customer c ON c.CustomerID = s.Customer_ID
-            WHERE s.SizeID = @SizeId
-            """;
-        return await conn.QuerySingleOrDefaultAsync<Size>(sql, new { SizeId = sizeId });
+        return await conn.QuerySingleOrDefaultAsync<Size>("sp_Sizes_GetById", 
+            new { SizeId = sizeId }, 
+            commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int> GetNextRegisterNoAsync(int customerId)
     {
         using var conn = CreateConnection();
-        const string sql = """
-            SELECT ISNULL(MAX(RegisterNo), 0) + 1
-            FROM Size WHERE Customer_ID = @CustomerId
-            """;
-        return await conn.ExecuteScalarAsync<int>(sql, new { CustomerId = customerId });
+        return await conn.ExecuteScalarAsync<int>("sp_Sizes_GetNextRegisterNo", 
+            new { CustomerId = customerId }, 
+            commandType: CommandType.StoredProcedure);
     }
 
     public async Task<int> CreateAsync(Size size)
     {
         using var conn = CreateConnection();
-        const string sql = """
-            INSERT INTO Size (
-                Customer_ID, RegisterNo, Lambai, Bazo, BazoType, BazoDetail,
-                Tera, Calar, CalarType, CalarDetail, Chati, Kamar,
-                Ghera, GheraType, ShalwarLambai, Pancha,
-                IsDoubleSidePocket, IsFrontPocket, IsShalwarPocket, IsCheckPatiKaj,
-                Pati, Design, OtherDetails
-            ) VALUES (
-                @Customer_ID, @RegisterNo, @Lambai, @Bazo, @BazoType, @BazoDetail,
-                @Tera, @Calar, @CalarType, @CalarDetail, @Chati, @Kamar,
-                @Ghera, @GheraType, @ShalwarLambai, @Pancha,
-                @IsDoubleSidePocket, @IsFrontPocket, @IsShalwarPocket, @IsCheckPatiKaj,
-                @Pati, @Design, @OtherDetails
-            );
-            SELECT CAST(SCOPE_IDENTITY() AS INT);
-            """;
-        return await conn.ExecuteScalarAsync<int>(sql, size);
+        return await conn.ExecuteScalarAsync<int>("sp_Sizes_Create", 
+            new {
+                size.Customer_ID, size.RegisterNo, size.Lambai, size.Bazo, size.BazoType, size.BazoDetail,
+                size.Tera, size.Calar, size.CalarType, size.CalarDetail, size.Chati, size.Kamar,
+                size.Ghera, size.GheraType, size.ShalwarLambai, size.Pancha,
+                size.IsDoubleSidePocket, size.IsFrontPocket, size.IsShalwarPocket, size.IsCheckPatiKaj,
+                size.Pati, size.Design, size.OtherDetails
+            }, 
+            commandType: CommandType.StoredProcedure);
     }
 
     public async Task UpdateAsync(Size size)
     {
         using var conn = CreateConnection();
-        const string sql = """
-            UPDATE Size SET
-                Lambai = @Lambai, Bazo = @Bazo, BazoType = @BazoType, BazoDetail = @BazoDetail,
-                Tera = @Tera, Calar = @Calar, CalarType = @CalarType, CalarDetail = @CalarDetail,
-                Chati = @Chati, Kamar = @Kamar, Ghera = @Ghera, GheraType = @GheraType,
-                ShalwarLambai = @ShalwarLambai, Pancha = @Pancha,
-                IsDoubleSidePocket = @IsDoubleSidePocket, IsFrontPocket = @IsFrontPocket,
-                IsShalwarPocket = @IsShalwarPocket, IsCheckPatiKaj = @IsCheckPatiKaj,
-                Pati = @Pati, Design = @Design, OtherDetails = @OtherDetails
-            WHERE SizeID = @SizeID
-            """;
-        await conn.ExecuteAsync(sql, size);
+        await conn.ExecuteAsync("sp_Sizes_Update", 
+            new {
+                size.SizeID,
+                size.Lambai, size.Bazo, size.BazoType, size.BazoDetail,
+                size.Tera, size.Calar, size.CalarType, size.CalarDetail,
+                size.Chati, size.Kamar, size.Ghera, size.GheraType,
+                size.ShalwarLambai, size.Pancha,
+                size.IsDoubleSidePocket, size.IsFrontPocket,
+                size.IsShalwarPocket, size.IsCheckPatiKaj,
+                size.Pati, size.Design, size.OtherDetails
+            }, 
+            commandType: CommandType.StoredProcedure);
     }
 
     public async Task DeleteAsync(int sizeId)
     {
         using var conn = CreateConnection();
-        const string sql = "DELETE FROM Size WHERE SizeID = @SizeId";
-        await conn.ExecuteAsync(sql, new { SizeId = sizeId });
+        await conn.ExecuteAsync("sp_Sizes_Delete", 
+            new { SizeId = sizeId }, 
+            commandType: CommandType.StoredProcedure);
     }
 }

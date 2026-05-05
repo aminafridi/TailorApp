@@ -16,6 +16,14 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
         return View(size);
     }
 
+    // GET: Sizes/DetailsPartial/5
+    public async Task<IActionResult> DetailsPartial(int id)
+    {
+        var size = await sizeRepo.GetByIdAsync(id);
+        if (size == null) return NotFound();
+        return PartialView("_DetailsModal", size);
+    }
+
     // GET: Sizes/Create?customerId=3
     public async Task<IActionResult> Create(int customerId)
     {
@@ -79,8 +87,21 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, int customerId)
     {
+        // If customerId isn't passed from the form, fetch the size to find it
+        if (customerId == 0)
+        {
+            var size = await sizeRepo.GetByIdAsync(id);
+            if (size != null) customerId = size.Customer_ID;
+        }
+
         await sizeRepo.DeleteAsync(id);
         TempData["Success"] = "Measurement record deleted.";
-        return RedirectToAction("Details", "Customers", new { id = customerId });
+
+        if (customerId != 0)
+        {
+            return RedirectToAction("Details", "Customers", new { id = customerId });
+        }
+        
+        return RedirectToAction("Index", "Customers");
     }
 }

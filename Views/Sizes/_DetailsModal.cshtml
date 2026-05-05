@@ -1,0 +1,124 @@
+@model TailorApp.Models.Size
+
+<div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 p-1">
+    <!-- Left Column: Kameez Measurements -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col h-full">
+        <div class="bg-blue-50/30 dark:bg-blue-900/10 px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+            <span class="text-blue-500 text-lg">👕</span>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">Kameez Measurements</h3>
+        </div>
+        <div class="p-6 space-y-6 flex-1">
+            <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                    <dt class="text-xs text-gray-400 mb-0.5">Lambai (Length)</dt>
+                    <dd class="text-xl font-bold text-gray-900 dark:text-white">@Model.Lambai<span class="text-sm font-normal text-gray-400">"</span></dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-gray-400 mb-0.5">Tera (Shoulder)</dt>
+                    <dd class="text-xl font-bold text-gray-900 dark:text-white">@Model.Tera<span class="text-sm font-normal text-gray-400">"</span></dd>
+                </div>
+                
+                <div class="col-span-2">
+                    <dt class="text-xs text-gray-400 mb-0.5">Bazo (Sleeve)</dt>
+                    <dd class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">@Model.Bazo<span class="text-sm font-normal text-gray-400">"</span></span>
+                        <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                            @Model.BazoTypeName @(Model.BazoDetail != null ? $"({Model.BazoDetail})" : "")
+                        </span>
+                    </dd>
+                </div>
+
+                <div class="col-span-2">
+                    <dt class="text-xs text-gray-400 mb-0.5">Calar (Collar)</dt>
+                    <dd class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">@Model.Calar<span class="text-sm font-normal text-gray-400">"</span></span>
+                        <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                            @Model.CalarTypeName @(Model.CalarDetail != null ? $"({Model.CalarDetail})" : "")
+                        </span>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-xs text-gray-400 mb-0.5">Chati (Chest)</dt>
+                    <dd class="text-xl font-bold text-gray-900 dark:text-white">@Model.Chati<span class="text-sm font-normal text-gray-400">"</span></dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-gray-400 mb-0.5">Kamar (Waist)</dt>
+                    <dd class="text-xl font-bold text-gray-900 dark:text-white">@Model.Kamar<span class="text-sm font-normal text-gray-400">"</span></dd>
+                </div>
+
+                <div class="col-span-2 border-t border-gray-50 dark:border-gray-800/50 pt-4">
+                    <dt class="text-xs text-gray-400 mb-0.5">Ghera (Hem)</dt>
+                    <dd class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">@Model.Ghera<span class="text-sm font-normal text-gray-400">"</span></span>
+                        <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                            @Model.GheraTypeName
+                        </span>
+                    </dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Shalwar, Options, Notes -->
+    <div class="flex flex-col gap-4">
+        <!-- Shalwar Card -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="bg-blue-50/30 dark:bg-blue-900/10 px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                <span class="text-blue-500 text-lg">👖</span>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">Shalwar</h3>
+            </div>
+            <div class="p-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-xs text-gray-400 mb-0.5">Lambai</dt>
+                        <dd class="text-xl font-bold text-gray-900 dark:text-white">@Model.ShalwarLambai<span class="text-sm font-normal text-gray-400">"</span></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-400 mb-0.5">Pancha</dt>
+                        <dd class="text-xl font-bold text-gray-900 dark:text-white">@Model.Pancha<span class="text-sm font-normal text-gray-400">"</span></dd>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Options Card -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div class="bg-purple-50/30 dark:bg-purple-900/10 px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                <span class="text-purple-500 text-lg">⚙️</span>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">Options</h3>
+            </div>
+            <div class="p-5 grid grid-cols-1 gap-y-2">
+                <div class="flex items-center gap-2 @(Model.IsDoubleSidePocket ? "text-emerald-500" : "text-gray-300 dark:text-gray-700")">
+                    <span class="text-sm font-bold">@(Model.IsDoubleSidePocket ? "✓" : "X")</span>
+                    <span class="text-xs font-medium @(Model.IsDoubleSidePocket ? "text-slate-800 dark:text-white" : "line-through")">Double Side Pocket</span>
+                </div>
+                <div class="flex items-center gap-2 @(Model.IsFrontPocket ? "text-emerald-500" : "text-gray-300 dark:text-gray-700")">
+                    <span class="text-sm font-bold">@(Model.IsFrontPocket ? "✓" : "X")</span>
+                    <span class="text-xs font-medium @(Model.IsFrontPocket ? "text-slate-800 dark:text-white" : "line-through")">Front Pocket</span>
+                </div>
+                <div class="flex items-center gap-2 @(Model.IsShalwarPocket ? "text-emerald-500" : "text-gray-300 dark:text-gray-700")">
+                    <span class="text-sm font-bold">@(Model.IsShalwarPocket ? "✓" : "X")</span>
+                    <span class="text-xs font-medium @(Model.IsShalwarPocket ? "text-slate-800 dark:text-white" : "line-through")">Shalwar Pocket</span>
+                </div>
+                <div class="flex items-center gap-2 @(Model.IsCheckPatiKaj ? "text-emerald-500" : "text-gray-300 dark:text-gray-700")">
+                    <span class="text-sm font-bold">@(Model.IsCheckPatiKaj ? "✓" : "X")</span>
+                    <span class="text-xs font-medium @(Model.IsCheckPatiKaj ? "text-slate-800 dark:text-white" : "line-through")">Pati Kaj</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Card -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex-1">
+            <div class="bg-rose-50/30 dark:bg-rose-900/10 px-5 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                <span class="text-rose-500 text-lg">📝</span>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">Design Notes</h3>
+            </div>
+            <div class="p-5">
+                <div class="p-3 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border border-gray-100 dark:border-gray-700 text-xs text-slate-700 dark:text-gray-300 leading-relaxed">
+                    @if (!string.IsNullOrEmpty(Model.Design)) { @Model.Design } else { <span class="italic text-gray-400">No specific design notes</span> }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
