@@ -36,10 +36,7 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
         return View(new Size
         {
             Customer_ID = customerId,
-            RegisterNo = nextRegNo,
-            BazoType = 1,
-            CalarType = 1,
-            GheraType = 1
+            RegisterNo = nextRegNo
         });
     }
 

@@ -1,217 +1,363 @@
 @model TailorApp.Models.Size
 @{ ViewData["Title"] = "Add Measurement"; }
 
-<div class="mb-8">
-    <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 mb-4 transition-colors">
-        <span class="mr-1">←</span> Back to @ViewBag.CustomerName
-    </a>
+<style>
+    /* Custom styles for the visual radio buttons and checkboxes */
+    .visual-radio-input:checked + .visual-radio-label {
+        border-color: var(--color-primary-500, #0ea5e9);
+        background-color: var(--color-primary-50, #f0f9ff);
+        color: var(--color-primary-700, #0369a1);
+    }
+    .dark .visual-radio-input:checked + .visual-radio-label {
+        background-color: rgba(14, 165, 233, 0.1);
+        color: var(--color-primary-400, #38bdf8);
+        border-color: var(--color-primary-500, #0ea5e9);
+    }
+    .urdu-text {
+        font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
+    }
+</style>
+
+<div class="mb-4 flex items-center justify-between">
     <div>
-        <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-white">New Measurement</h1>
-        <p class="text-gray-500 dark:text-gray-400 mt-1">Register #@Model.RegisterNo for @ViewBag.CustomerName</p>
+        <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 mb-2 transition-colors">
+            <span class="mr-1">←</span> Back to @ViewBag.CustomerName
+        </a>
+        <h1 class="text-2xl font-serif font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span>✂️</span> Quick Measurement Slip
+        </h1>
     </div>
 </div>
 
-<form asp-action="Create" method="post" class="space-y-6">
+<form asp-action="Create" method="post" id="measurementForm">
     @Html.AntiForgeryToken()
     <input asp-for="Customer_ID" type="hidden" />
     <input asp-for="RegisterNo" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4"></div>
 
-    <!-- Kameez Section -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <span>👘</span> Kameez Measurements
-            </h3>
-        </div>
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
+        
+        <!-- Visual Options (8 cols, Right on Desktop) -->
+        <div class="lg:col-span-8 space-y-6 order-last lg:order-last">
             
-            <div>
-                <label asp-for="Lambai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lambai (Length) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Lambai" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 42" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm p-5">
+                <h3 class="text-lg font-bold text-gray-500 dark:text-gray-400 mb-4 border-b border-gray-100 dark:border-gray-800 pb-2">Visual Details</h3>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    
+                    <!-- Collar Type -->
+                    <div class="space-y-2">
+                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-300 text-center urdu-text">کالر سٹائل</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="hidden" asp-for="CalarType" id="CalarTypeHidden" />
+                            
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="CalarTypeVisual" value="1" class="sr-only visual-radio-input" @(Model.CalarType == 1 ? "checked" : "") onchange="document.getElementById('CalarTypeHidden').value = this.value;" />
+                                <div class="visual-radio-label flex flex-col items-center justify-center p-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all h-20 text-gray-500 dark:text-gray-400">
+                                    <svg class="w-8 h-8 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6l8 4 8-4M4 6v4l8 4 8-4V6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span class="text-sm font-bold urdu-text">کالر</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="CalarTypeVisual" value="2" class="sr-only visual-radio-input" @(Model.CalarType == 2 ? "checked" : "") onchange="document.getElementById('CalarTypeHidden').value = this.value;" />
+                                <div class="visual-radio-label flex flex-col items-center justify-center p-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all h-20 text-gray-500 dark:text-gray-400">
+                                    <svg class="w-8 h-8 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8c0-2 4-3 6-3s6 1 6 3v2c0 2-4 3-6 3s-6-1-6-3V8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span class="text-sm font-bold urdu-text">بین</span>
+                                </div>
+                            </label>
+                        </div>
+                        <input asp-for="CalarDetail" class="w-full mt-2 px-2 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 urdu-text" placeholder="کالر کی تفصیل..." dir="rtl" />
+                    </div>
+
+                    <!-- Sleeve Type -->
+                    <div class="space-y-2">
+                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-300 text-center urdu-text">آستین سٹائل</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="hidden" asp-for="BazoType" id="BazoTypeHidden" />
+                            
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="BazoTypeVisual" value="1" class="sr-only visual-radio-input" @(Model.BazoType == 1 ? "checked" : "") onchange="document.getElementById('BazoTypeHidden').value = this.value;" />
+                                <div class="visual-radio-label flex flex-col items-center justify-center p-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all h-20 text-gray-500 dark:text-gray-400">
+                                    <svg class="w-8 h-8 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4h8l-2 16h-4L8 4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span class="text-sm font-bold urdu-text">گول بازو</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="BazoTypeVisual" value="2" class="sr-only visual-radio-input" @(Model.BazoType == 2 ? "checked" : "") onchange="document.getElementById('BazoTypeHidden').value = this.value;" />
+                                <div class="visual-radio-label flex flex-col items-center justify-center p-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all h-20 text-gray-500 dark:text-gray-400">
+                                    <svg class="w-8 h-8 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 4h8l-2 12h2v4H6v-4h2L8 4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span class="text-sm font-bold urdu-text">کف</span>
+                                </div>
+                            </label>
+                        </div>
+                        <input asp-for="BazoDetail" class="w-full mt-2 px-2 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 urdu-text" placeholder="آستین کی تفصیل..." dir="rtl" />
+                    </div>
+                    
+                    <!-- Hem (Daman) Type -->
+                    <div class="space-y-2">
+                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-300 text-center urdu-text">دامن</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="hidden" asp-for="GheraType" id="GheraTypeHidden" />
+                            
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="GheraTypeVisual" value="2" class="sr-only visual-radio-input" @(Model.GheraType == 2 ? "checked" : "") onchange="document.getElementById('GheraTypeHidden').value = this.value;" />
+                                <div class="visual-radio-label flex flex-col items-center justify-center p-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all h-20 text-gray-500 dark:text-gray-400">
+                                    <svg class="w-8 h-8 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4v16h16V4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span class="text-sm font-bold urdu-text">چورس دامن</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="GheraTypeVisual" value="1" class="sr-only visual-radio-input" @(Model.GheraType == 1 ? "checked" : "") onchange="document.getElementById('GheraTypeHidden').value = this.value;" />
+                                <div class="visual-radio-label flex flex-col items-center justify-center p-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all h-20 text-gray-500 dark:text-gray-400">
+                                    <svg class="w-8 h-8 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4v10c0 3.314 2.686 6 6 6h4c3.314 0 6-2.686 6-6V4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <span class="text-sm font-bold urdu-text">گول دامن</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Pockets Config -->
+                    <div class="space-y-2 col-span-2 sm:col-span-1">
+                        <label class="block text-lg font-semibold text-gray-700 dark:text-gray-300 text-center urdu-text">پاکٹ</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <label class="cursor-pointer relative">
+                                <input asp-for="IsFrontPocket" type="checkbox" class="sr-only visual-radio-input" />
+                                <div class="visual-radio-label flex flex-row-reverse items-center justify-between px-3 py-1.5 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-gray-500 dark:text-gray-400">
+                                    <span class="text-sm font-bold urdu-text" dir="rtl">سامنے پاکٹ</span>
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v10a8 8 0 01-16 0V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input asp-for="IsDoubleSidePocket" type="checkbox" class="sr-only visual-radio-input" />
+                                <div class="visual-radio-label flex flex-row-reverse items-center justify-between px-3 py-1.5 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-gray-500 dark:text-gray-400">
+                                    <span class="text-sm font-bold urdu-text" dir="rtl">سائیڈ پاکٹ</span>
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18V3H3zm8 14l-4-4h8l-4 4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input asp-for="IsShalwarPocket" type="checkbox" class="sr-only visual-radio-input" />
+                                <div class="visual-radio-label flex flex-row-reverse items-center justify-between px-3 py-1.5 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-gray-500 dark:text-gray-400">
+                                    <span class="text-sm font-bold urdu-text" dir="rtl">شلوار پاکٹ</span>
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 4H5v16h14V4zm-7 4h4v4h-4V8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
-                <span asp-validation-for="Lambai" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
 
-            <div>
-                <label asp-for="Bazo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bazo (Sleeve) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Bazo" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 25" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                <div class="mt-6 border-t border-gray-100 dark:border-gray-800 pt-5">
+                    <h4 class="text-lg font-bold text-gray-500 dark:text-gray-400 mb-3">Stitching & Pati</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input asp-for="IsCheckPatiKaj" type="checkbox" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900" />
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors urdu-text">پٹی کاج</span>
+                        </label>
+                        <div class="sm:col-span-1">
+                            <input asp-for="Pati" class="w-full px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 transition-all text-left" placeholder="Pati e.g. 1.5" dir="ltr" />
+                        </div>
+                        
+                        <div class="sm:col-span-2 flex flex-wrap gap-2 justify-start">
+                            <!-- Quick Stitch Tags as Checkboxes -->
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="sr-only peer salai-checkbox" value="چمک تار سنگل سلائی" />
+                                <div class="px-2.5 py-1 text-xs font-bold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 peer-checked:bg-primary-100 peer-checked:text-primary-700 dark:peer-checked:bg-primary-900/50 dark:peer-checked:text-primary-400 transition-colors urdu-text border border-transparent peer-checked:border-primary-500 select-none">سنگل سلائی</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="sr-only peer salai-checkbox" value="چمک تار ڈبل سلائی" />
+                                <div class="px-2.5 py-1 text-xs font-bold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 peer-checked:bg-primary-100 peer-checked:text-primary-700 dark:peer-checked:bg-primary-900/50 dark:peer-checked:text-primary-400 transition-colors urdu-text border border-transparent peer-checked:border-primary-500 select-none">ڈبل سلائی</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="sr-only peer salai-checkbox" value="چمک تار ٹرپل سلائی" />
+                                <div class="px-2.5 py-1 text-xs font-bold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 peer-checked:bg-primary-100 peer-checked:text-primary-700 dark:peer-checked:bg-primary-900/50 dark:peer-checked:text-primary-400 transition-colors urdu-text border border-transparent peer-checked:border-primary-500 select-none">ٹرپل سلائی</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="sr-only peer salai-checkbox" value="چمک تار چار سلائی" />
+                                <div class="px-2.5 py-1 text-xs font-bold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 peer-checked:bg-primary-100 peer-checked:text-primary-700 dark:peer-checked:bg-primary-900/50 dark:peer-checked:text-primary-400 transition-colors urdu-text border border-transparent peer-checked:border-primary-500 select-none">چار سلائی</div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <span asp-validation-for="Bazo" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
 
-            <div>
-                <label asp-for="BazoType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bazo Type</label>
-                <select asp-for="BazoType" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
-                    <option value="1">Sada (Simple)</option>
-                    <option value="2">Kaf</option>
-                </select>
-            </div>
-
-            <div class="md:col-span-2 lg:col-span-3">
-                <label asp-for="BazoDetail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bazo Detail (Optional)</label>
-                <input asp-for="BazoDetail" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="Optional details..." />
-            </div>
-
-            <div>
-                <label asp-for="Tera" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tera (Shoulder) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Tera" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 18" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
+                <div class="mt-5 border-t border-gray-100 dark:border-gray-800 pt-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="Design" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Design Notes</label>
+                            <textarea asp-for="Design" id="DesignNotes" rows="2" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 resize-none transition-all" placeholder="Design details..."></textarea>
+                        </div>
+                        <div>
+                            <label asp-for="OtherDetails" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Other Details</label>
+                            <textarea asp-for="OtherDetails" rows="2" class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 resize-none transition-all" placeholder="Other notes..."></textarea>
+                        </div>
+                    </div>
                 </div>
-                <span asp-validation-for="Tera" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-
-            <div>
-                <label asp-for="Chati" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Chati (Chest) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Chati" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 42" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
-                </div>
-                <span asp-validation-for="Chati" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-
-            <div>
-                <label asp-for="Kamar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kamar (Waist) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Kamar" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 38" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
-                </div>
-                <span asp-validation-for="Kamar" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-
-            <div>
-                <label asp-for="Calar" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calar (Collar) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Calar" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 15" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
-                </div>
-                <span asp-validation-for="Calar" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-
-            <div>
-                <label asp-for="CalarType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calar Type</label>
-                <select asp-for="CalarType" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
-                    <option value="1">Calar</option>
-                    <option value="2">Ban</option>
-                </select>
-            </div>
-
-            <div>
-                <label asp-for="CalarDetail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calar Detail</label>
-                <input asp-for="CalarDetail" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="Optional..." />
-            </div>
-
-            <div>
-                <label asp-for="Ghera" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ghera (Hem) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Ghera" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 52" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
-                </div>
-                <span asp-validation-for="Ghera" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-
-            <div>
-                <label asp-for="GheraType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ghera Type</label>
-                <select asp-for="GheraType" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
-                    <option value="1">Gol (Round)</option>
-                    <option value="2">Choras (Square)</option>
-                </select>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Shalwar Section -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <span>👖</span> Shalwar Measurements
-            </h3>
-        </div>
-        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-                <label asp-for="ShalwarLambai" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Shalwar Lambai <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="ShalwarLambai" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 40" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
-                </div>
-                <span asp-validation-for="ShalwarLambai" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-            <div>
-                <label asp-for="Pancha" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pancha (Bottom) <span class="text-red-500">*</span></label>
-                <div class="relative">
-                    <input asp-for="Pancha" class="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 8" />
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 font-medium">"</div>
-                </div>
-                <span asp-validation-for="Pancha" class="text-red-500 text-xs mt-1 block"></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Options Section -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <span>⚙️</span> Options & Pockets
-            </h3>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <input asp-for="IsDoubleSidePocket" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Double Side Pocket</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <input asp-for="IsFrontPocket" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Front Pocket</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <input asp-for="IsShalwarPocket" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Shalwar Pocket</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <input asp-for="IsCheckPatiKaj" type="checkbox" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-primary-600 dark:ring-offset-gray-900" />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Pati Kaj</span>
-                </label>
+                
             </div>
             
-            <div class="sm:w-1/2">
-                <label asp-for="Pati" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pati (Placket)</label>
-                <input asp-for="Pati" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" placeholder="e.g. 1.5" />
+            <div class="flex justify-end gap-3 lg:hidden">
+                <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="px-6 py-2.5 rounded-xl font-bold text-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                    Cancel
+                </a>
+                <button type="submit" class="flex-1 px-8 py-2.5 bg-gray-900 hover:bg-black dark:bg-primary-600 dark:hover:bg-primary-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+                    <span>✓</span> Save
+                </button>
             </div>
         </div>
-    </div>
 
-    <!-- Notes Section -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <div class="bg-gray-50 dark:bg-gray-950/50 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <span>📝</span> Design & Notes
-            </h3>
-        </div>
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label asp-for="Design" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Design</label>
-                <textarea asp-for="Design" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none" placeholder="Describe the design..."></textarea>
+        <!-- Measurements Slip (4 cols, Left on Desktop) -->
+        <div class="lg:col-span-4 order-first lg:order-first">
+            <div class="bg-[#fcfbf7] dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden relative font-mono">
+                <!-- Slip Header Pattern -->
+                <div class="h-2 w-full bg-repeating-linear-gradient-to-r from-gray-300 to-gray-300 dark:from-gray-700 dark:to-gray-700" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 4px, #ccc 4px, #ccc 8px);"></div>
+                
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950/50 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2 uppercase tracking-widest">
+                        <span>📏</span> Measurements
+                    </h3>
+                    <span class="text-[10px] text-gray-400 font-bold tracking-widest">INCHES</span>
+                </div>
+                
+                <div class="p-0">
+                    <table class="w-full text-sm">
+                        <tbody>
+                            <!-- Swap order: Measurements on left, Label on right -->
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Lambai" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Lambai" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 w-1/2 align-middle text-right urdu-text text-lg" dir="rtl">لمبائی</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Bazo" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Bazo" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">آستین</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Tera" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Tera" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">تیرا</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Calar" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Calar" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">کالر</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Chati" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Chati" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">چھاتی</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Kamar" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Kamar" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">کمر</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Ghera" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Ghera" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">دامن</td>
+                            </tr>
+                            <tr class="border-b border-gray-100 dark:border-gray-800/50 hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="ShalwarLambai" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="ShalwarLambai" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-3 sm:px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">شلوار</td>
+                            </tr>
+                            <tr class="hover:bg-white dark:hover:bg-gray-800/20 transition-colors">
+                                <td class="py-1 px-3 border-r border-gray-100 dark:border-gray-800/50 relative">
+                                    <input asp-for="Pancha" class="w-full text-left font-bold text-xl bg-transparent border-none focus:ring-0 p-0 text-gray-900 dark:text-white" placeholder="--" dir="ltr" />
+                                    <span asp-validation-for="Pancha" class="text-red-500 text-[10px] absolute bottom-0 left-3"></span>
+                                </td>
+                                <td class="py-3 px-5 font-bold text-gray-600 dark:text-gray-400 align-middle text-right urdu-text text-lg" dir="rtl">پانچہ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div>
-                <label asp-for="OtherDetails" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Other Details</label>
-                <textarea asp-for="OtherDetails" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none" placeholder="Any other notes..."></textarea>
+            
+            <div class="hidden lg:flex justify-end gap-3 mt-6">
+                <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="px-6 py-3 rounded-xl font-bold text-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors shadow-sm">
+                    Cancel
+                </a>
+                <button type="submit" class="px-10 py-3 bg-gray-900 hover:bg-black dark:bg-primary-600 dark:hover:bg-primary-700 text-white font-bold text-sm rounded-xl shadow-md transition-colors flex items-center gap-2">
+                    <span>✓</span> Save
+                </button>
             </div>
         </div>
-    </div>
 
-    <div class="flex justify-end gap-3 pt-2">
-        <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer_ID" class="px-6 py-3 rounded-xl font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors">
-            Cancel
-        </a>
-        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 transition-colors flex items-center gap-2">
-            <span>✓</span> Save Measurement
-        </button>
     </div>
 </form>
+
+<script>
+    // Handle Salai checkbox toggles
+    document.querySelectorAll('.salai-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const otherDetailsEl = document.getElementById('OtherDetails');
+            let text = otherDetailsEl.value || '';
+            const val = this.value;
+            
+            if(this.checked) {
+                if(!text.includes(val)) {
+                    text = text ? text + '، ' + val : val;
+                }
+            } else {
+                // Remove it cleanly
+                const regex = new RegExp('(^|،\\s*)' + val + '(\\s*،)?', 'g');
+                text = text.replace(regex, function(match, p1, p2) {
+                    if (p1 && p2) return '، ';
+                    return '';
+                }).trim();
+                // clean up any trailing/leading comma
+                text = text.replace(/^،\s*/, '').replace(/،\s*$/, '');
+            }
+            otherDetailsEl.value = text;
+            
+            // Highlight the textarea briefly
+            otherDetailsEl.classList.add('ring-2', 'ring-primary-500');
+            setTimeout(() => otherDetailsEl.classList.remove('ring-2', 'ring-primary-500'), 300);
+        });
+    });
+
+    // Focus first measurement field on load and sync checkboxes
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const firstInput = document.getElementById('Lambai');
+            if(firstInput) firstInput.focus();
+        }, 100);
+        
+        // Sync checkboxes with initial OtherDetails text
+        const otherDetailsEl = document.getElementById('OtherDetails');
+        if(otherDetailsEl) {
+            const currentText = otherDetailsEl.value || '';
+            document.querySelectorAll('.salai-checkbox').forEach(cb => {
+                if(currentText.includes(cb.value)) {
+                    cb.checked = true;
+                }
+            });
+        }
+        
+        // Allow clicking row to focus input
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if(e.target.tagName !== 'INPUT') {
+                    const input = row.querySelector('input');
+                    if(input) input.focus();
+                }
+            });
+        });
+    });
+</script>
