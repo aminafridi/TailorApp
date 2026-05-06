@@ -82,7 +82,7 @@
         }
 
         const savedTheme = localStorage.getItem('theme') || 'light';
-        const savedColor = localStorage.getItem('color') || 'gold';
+        const savedColor = localStorage.getItem('color') || 'blue';
         const savedLayout = localStorage.getItem('layout') || 'topbar';
         
         applyTheme(savedTheme);
@@ -312,7 +312,172 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') hideConfirmModal();
         });
+
+        // Global Elegant Toast Notification System
+        function showToast(message, type = 'success') {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed bottom-5 right-5 z-[200] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'p-4 rounded-2xl shadow-xl border flex items-center justify-between gap-3 translate-y-4 opacity-0 transition-all duration-300 ease-out pointer-events-auto bg-white/95 dark:bg-gray-950/95 backdrop-blur-md';
+            
+            let icon = '✨';
+            let borderClass = 'border-gray-200 dark:border-gray-800';
+            let textClass = 'text-gray-800 dark:text-gray-200';
+            
+            if (type === 'success') {
+                icon = '✅';
+                borderClass = 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/50';
+                textClass = 'text-green-800 dark:text-green-300';
+            } else if (type === 'error') {
+                icon = '❌';
+                borderClass = 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/50';
+                textClass = 'text-red-800 dark:text-red-300';
+            } else if (type === 'info') {
+                icon = 'ℹ️';
+                borderClass = 'border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/50';
+                textClass = 'text-blue-800 dark:text-blue-300';
+            }
+
+            toast.className += ` ${borderClass} ${textClass}`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl shrink-0">${icon}</span>
+                    <span class="text-sm font-semibold">${message}</span>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xs p-1 shrink-0 ml-auto" onclick="this.parentElement.parentElement.remove()">✕</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Self-contained helpers for Save & Share
+        function openWhatsApp() {
+            const url = `https://api.whatsapp.com/send`;
+            window.open(url, '_blank');
+        }
+
+        function fallbackShare(blob) {
+            if (navigator.clipboard && navigator.clipboard.write) {
+                try {
+                    navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]).then(() => {
+                        showToast("Slip image copied to clipboard! Opening WhatsApp... Just Paste (Ctrl+V) in chat.", "success");
+                        openWhatsApp();
+                    }).catch(err => {
+                        console.error("Clipboard copy failed: ", err);
+                        showToast("Opening WhatsApp... Paste the slip image inside the chat.", "info");
+                        openWhatsApp();
+                    });
+                } catch (err) {
+                    console.error("ClipboardItem error: ", err);
+                    showToast("Opening WhatsApp... Paste the slip image inside the chat.", "info");
+                    openWhatsApp();
+                }
+            } else {
+                showToast("Opening WhatsApp...", "info");
+                openWhatsApp();
+            }
+        }
+
+        window.saveMeasurementSlip = function(registerNo, customerName) {
+            const card = document.getElementById('measurement-capture-card');
+            if (!card) return;
+
+            showToast("Generating high-resolution image...", "info");
+
+            // Temporary styling fix to ensure beautiful screenshot layout
+            card.classList.add('p-6'); 
+            
+            html2canvas(card, {
+                scale: 3, // Ultra-sharp 3x resolution
+                useCORS: true,
+                backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+                logging: false
+            }).then(canvas => {
+                card.classList.remove('p-6'); // Restore
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    // Fix escape sequences inside razor context
+                    a.download = `Measurement_Slip_${registerNo}_${customerName.replace(/\s+/g, '_')}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showToast("Saved successfully to your downloads!", "success");
+                }, 'image/png', 1.0);
+            }).catch(err => {
+                card.classList.remove('p-6'); // Restore
+                console.error('Error saving image:', err);
+                showToast("Error generating image.", "error");
+            });
+        };
+
+        window.shareMeasurementSlip = function(registerNo, customerName) {
+            const card = document.getElementById('measurement-capture-card');
+            if (!card) return;
+
+            showToast("Preparing slip for sharing...", "info");
+
+            card.classList.add('p-6');
+
+            html2canvas(card, {
+                scale: 3, // Ultra-sharp 3x resolution
+                useCORS: true,
+                backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+                logging: false
+            }).then(canvas => {
+                card.classList.remove('p-6');
+                canvas.toBlob(blob => {
+                    const file = new File([blob], `Measurement_Slip_${registerNo}.png`, { type: 'image/png' });
+                    
+                    // Check if Web Share API is capable of sharing files
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file]
+                        })
+                        .then(() => showToast("Shared successfully!", "success"))
+                        .catch(err => {
+                            console.log('Share canceled/failed', err);
+                        });
+                    } else {
+                        // PC/Desktop Fallback: Copy to clipboard and open WhatsApp
+                        fallbackShare(blob);
+                    }
+                }, 'image/png', 1.0);
+            }).catch(err => {
+                card.classList.remove('p-6');
+                console.error('Error sharing image:', err);
+                showToast("Error preparing share.", "error");
+            });
+        };
     </script>
+
+    <!-- html2canvas Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

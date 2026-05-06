@@ -21,6 +21,13 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
     {
         var size = await sizeRepo.GetByIdAsync(id);
         if (size == null) return NotFound();
+
+        var customer = await customerRepo.GetByIdAsync(size.Customer_ID);
+        if (customer != null)
+        {
+            ViewBag.CustomerMobile = customer.MobileNo1 ?? customer.MobileNo2;
+        }
+
         return PartialView("_DetailsModal", size);
     }
 
