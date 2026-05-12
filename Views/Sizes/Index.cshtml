@@ -1,12 +1,12 @@
-@model TailorApp.Models.PagedResult<TailorApp.Models.Customer>
+@model TailorApp.Models.PagedResult<TailorApp.Models.Size>
 @{
-    ViewData["Title"] = "Customers Directory";
+    ViewData["Title"] = "Measurements Directory";
 }
 
 <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-        <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-gray-50 tracking-tight">Customers Directory</h1>
-        <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Manage your client profiles and contacts.</p>
+        <h1 class="text-3xl font-serif font-bold text-gray-900 dark:text-gray-50 tracking-tight">Measurements Directory</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Direct search and view access to customer sizes and details.</p>
     </div>
     <div>
         <a asp-controller="Customers" asp-action="Create" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 transform hover:-translate-y-0.5 transition-all duration-200">
@@ -19,20 +19,20 @@
 {
     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-12 text-center max-w-2xl mx-auto mt-8 shadow-sm">
         <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 mb-4">
-            <span class="text-3xl">👥</span>
+            <span class="text-3xl">📐</span>
         </div>
-        @if (!string.IsNullOrEmpty(ViewBag.Search))
+        @if (!string.IsNullOrEmpty(ViewBag.Search) || !string.IsNullOrEmpty(ViewBag.SearchName) || !string.IsNullOrEmpty(ViewBag.SearchRegNo) || !string.IsNullOrEmpty(ViewBag.SearchMobile))
         {
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No results found</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">We couldn't find any customers matching "@ViewBag.Search".</p>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">We couldn't find any measurements matching your search filters.</p>
             <a asp-action="Index" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">Clear search</a>
         }
         else
         {
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No customers yet</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">Your customer directory is empty. Add your first customer to get started.</p>
-            <a asp-action="Create" class="inline-flex items-center px-6 py-3 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white text-white dark:text-gray-900 font-medium rounded-xl transition-colors">
-                Add First Customer
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No measurements yet</h2>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">No measurement records are registered yet. Register a customer to get started.</p>
+            <a asp-controller="Customers" asp-action="Create" class="inline-flex items-center px-6 py-3 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white text-white dark:text-gray-900 font-medium rounded-xl transition-colors">
+                Add Customer
             </a>
         }
     </div>
@@ -40,11 +40,11 @@
 else
 {
     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <!-- Top Pagination Controls -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <!-- Top Search and Pagination Controls -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/20 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 shrink-0">
                 <span>Show</span>
-                <select id="pageSizeSelect" onchange="window.location.href='?search=@(ViewBag.Search)&page=1&pageSize=' + this.value" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-2 py-1.5 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none">
+                <select id="pageSizeSelect" onchange="window.location.href='?searchName=@(ViewBag.SearchName)&searchRegNo=@(ViewBag.SearchRegNo)&searchMobile=@(ViewBag.SearchMobile)&page=1&pageSize=' + this.value" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-2 py-1.5 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none">
                     @Html.Raw(Model.PageSize == 50 ? "<option value=\"50\" selected>50</option>" : "<option value=\"50\">50</option>")
                     @Html.Raw(Model.PageSize == 100 ? "<option value=\"100\" selected>100</option>" : "<option value=\"100\">100</option>")
                     @Html.Raw(Model.PageSize == 200 ? "<option value=\"200\" selected>200</option>" : "<option value=\"200\">200</option>")
@@ -53,35 +53,78 @@ else
                 <span>entries</span>
             </div>
             
-            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 w-full sm:w-auto">
-                <span class="hidden sm:inline">Search:</span>
-                <form method="get" class="relative flex-1 sm:w-80 m-0">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="text-gray-400 text-sm">🔍</span>
+            <form method="get" class="m-0 flex-1">
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Name Search -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs">
+                            👤
+                        </div>
+                        <input type="text" name="searchName" value="@ViewBag.SearchName" 
+                               class="w-full pl-8 pr-8 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs" 
+                               placeholder="Customer Name..." />
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchName))
+                        {
+                            <button type="button" onclick="this.previousElementSibling.value=''; this.form.submit();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</button>
+                        }
                     </div>
-                    <input type="text" name="search" value="@ViewBag.Search" 
-                           class="w-full pl-10 pr-10 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm" 
-                           placeholder="Search customers..." />
-                    @if (!string.IsNullOrEmpty(ViewBag.Search))
-                    {
-                        <a asp-action="Index" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</a>
-                    }
-                </form>
-            </div>
+
+                    <!-- Register No Search -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs">
+                            🔢
+                        </div>
+                        <input type="text" name="searchRegNo" value="@ViewBag.SearchRegNo" 
+                               class="w-full pl-8 pr-8 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs" 
+                               placeholder="Register No..." />
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchRegNo))
+                        {
+                            <button type="button" onclick="this.previousElementSibling.value=''; this.form.submit();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</button>
+                        }
+                    </div>
+
+                    <!-- Mobile Contacts Search -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs">
+                            📞
+                        </div>
+                        <input type="text" name="searchMobile" value="@ViewBag.SearchMobile" 
+                               class="w-full pl-8 pr-8 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs" 
+                               placeholder="Mobile No..." />
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchMobile))
+                        {
+                            <button type="button" onclick="this.previousElementSibling.value=''; this.form.submit();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</button>
+                        }
+                    </div>
+                </div>
+                <input type="submit" class="hidden" />
+            </form>
+
+            @if (!string.IsNullOrEmpty(ViewBag.SearchName) || !string.IsNullOrEmpty(ViewBag.SearchRegNo) || !string.IsNullOrEmpty(ViewBag.SearchMobile))
+            {
+                <div class="shrink-0">
+                    <a asp-action="Index" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40 dark:border-red-900/50 rounded-lg transition-all" title="Clear all filters">
+                        ✕ Reset
+                    </a>
+                </div>
+            }
         </div>
         
         <!-- Desktop Table View -->
         <div class="hidden md:block overflow-x-auto">
-            <table id="customersTable" class="w-full text-left border-collapse">
+            <table id="measurementsTable" class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 dark:bg-gray-950/50 border-b border-gray-200 dark:border-gray-800 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">
                         <th class="px-6 py-4 w-16 text-center">#</th>
                         <th class="px-6 py-4">Customer Name</th>
+                        <th class="px-6 py-4 w-40">Register No</th>
                         <th class="px-6 py-4">Mobile Contacts</th>
+                        <th class="px-6 py-4">Design</th>
                         <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="customersTableBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody id="measurementsTableBody" class="divide-y divide-gray-200 dark:divide-gray-800">
                     @{ int rowNum = Model.TotalCount == 0 ? 1 : ((Model.Page - 1) * Model.PageSize) + 1; }
                     @foreach (var c in Model.Items)
                     {
@@ -90,12 +133,17 @@ else
                                 @(rowNum++)
                             </td>
                             <td class="px-6 py-4">
-                                <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.CustomerID" class="flex items-center gap-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                <a class="flex items-center gap-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                     <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm border border-primary-200 dark:border-primary-800/50">
                                         @(!string.IsNullOrEmpty(c.CustomerName) ? c.CustomerName[0].ToString().ToUpper() : "C")
                                     </div>
                                     <span class="font-bold text-gray-900 dark:text-gray-100">@c.CustomerName</span>
                                 </a>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-bold text-gray-900 dark:text-gray-100 font-mono">
+                                    @c.RegisterNo
+                                </span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-xs text-gray-700 dark:text-gray-300 font-medium font-mono">
@@ -104,25 +152,32 @@ else
                                     @if (string.IsNullOrEmpty(c.MobileNo1) && string.IsNullOrEmpty(c.MobileNo2)) { <span class="text-gray-400 italic">No contact</span> }
                                 </div>
                             </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[200px] inline-block font-semibold urdu-text">
+                                    @(string.IsNullOrEmpty(c.Design) ? "N/A" : c.Design)
+                                </span>
+                            </td>
                             <td class="px-6 py-4 text-right text-sm font-medium">
                                 <div class="flex justify-end gap-1.5 items-center">
-                                    <!-- View Customer Details -->
-                                    <a asp-action="Details" asp-route-id="@c.CustomerID" class="px-3 py-1.5 text-xs font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all flex items-center gap-1" title="View Customer Details">
+                                    <!-- View Receipt Button -->
+                                    <button type="button" onclick="openMeasurementModal(@c.SizeID)" class="px-3 py-1.5 text-xs font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-all flex items-center gap-1" title="View Measurement Receipt">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
                                         View
-                                    </a>
+                                    </button>
                                     
-                                    <!-- Edit Customer -->
-                                    <a asp-action="Edit" asp-route-id="@c.CustomerID" class="px-3 py-1.5 text-xs font-bold rounded-xl text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-950/40 dark:border-blue-900/50 transition-all flex items-center gap-0.5" title="Edit Customer Details">
+                                    <!-- Edit Size -->
+                                    <a href="/Sizes/Edit/@c.SizeID" class="px-3 py-1.5 text-xs font-bold rounded-xl text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:hover:bg-amber-950/40 dark:border-amber-900/50 transition-all flex items-center gap-0.5" title="Edit Sizing Details">
                                         ✏️ Edit
                                     </a>
                                     
-                                    <!-- Delete Customer -->
-                                    <form id="delete-cust-form-@c.CustomerID" asp-action="Delete" asp-route-id="@c.CustomerID" method="post" class="m-0 inline-block">
+                                    <!-- Delete Size -->
+                                    <form id="delete-size-form-@c.SizeID" action="/Sizes/Delete" method="post" class="m-0 inline-block">
                                         @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@c.SizeID" />
+                                        <input type="hidden" name="customerId" value="@c.Customer_ID" />
                                         <button type="button" 
-                                                onclick="showConfirmModal('Delete Customer', 'Delete customer @c.CustomerName and all of their measurements?', 'Yes, Delete!', () => document.getElementById('delete-cust-form-@c.CustomerID').submit())"
-                                                class="px-3 py-1.5 text-xs font-bold rounded-xl text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40 dark:border-red-900/50 transition-all flex items-center gap-0.5" title="Delete Customer Profile">
+                                                onclick="showConfirmModal('Delete Measurement', 'Are you sure you want to delete size record #@c.RegisterNo?', 'Yes, Delete!', () => document.getElementById('delete-size-form-@c.SizeID').submit())"
+                                                class="px-3 py-1.5 text-xs font-bold rounded-xl text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40 dark:border-red-900/50 transition-all flex items-center gap-0.5" title="Delete Sizing Record">
                                             🗑️ Delete
                                         </button>
                                     </form>
@@ -145,9 +200,12 @@ else
                                 @(!string.IsNullOrEmpty(c.CustomerName) ? c.CustomerName[0].ToString().ToUpper() : "C")
                             </div>
                             <div>
-                                <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.CustomerID" class="font-bold text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors block">
+                                <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.Customer_ID" class="font-bold text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors block">
                                     @c.CustomerName
                                 </a>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    Reg: <span class="font-bold font-mono text-indigo-600 dark:text-indigo-400">@c.RegisterNo</span>
+                                </div>
                             </div>
                         </div>
                         <div class="text-right">
@@ -158,13 +216,13 @@ else
 
                     <!-- Actions Panel for Mobile Card -->
                     <div class="flex gap-2 mt-3">
-                        <a asp-action="Details" asp-route-id="@c.CustomerID" class="flex-1 text-center py-2.5 px-3 text-xs font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors">
+                        <button type="button" onclick="openMeasurementModal(@c.SizeID)" class="flex-1 text-center py-2.5 px-3 text-xs font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors">
                             View
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@c.CustomerID" class="flex-1 text-center py-2.5 px-3 text-xs font-bold rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:hover:bg-blue-900/40 transition-colors">
+                        </button>
+                        <a href="/Sizes/Edit/@c.SizeID" class="flex-1 text-center py-2.5 px-3 text-xs font-bold rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 dark:bg-amber-950/20 dark:text-amber-400 dark:hover:bg-amber-900/40 transition-colors">
                             Edit
                         </a>
-                        <button type="button" onclick="showConfirmModal('Delete Customer', 'Delete customer @c.CustomerName and all of their measurements?', 'Yes, Delete!', () => document.getElementById('delete-cust-form-@c.CustomerID').submit())" class="flex-1 text-center py-2.5 px-3 text-xs font-bold rounded-lg text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors">
+                        <button type="button" onclick="showConfirmModal('Delete Measurement', 'Delete size record #@c.RegisterNo?', 'Yes, Delete!', () => document.getElementById('delete-size-form-@c.SizeID').submit())" class="flex-1 text-center py-2.5 px-3 text-xs font-bold rounded-lg text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors">
                             Delete
                         </button>
                     </div>
@@ -186,7 +244,7 @@ else
             <div class="flex items-center gap-1">
                 @if (Model.Page > 1)
                 {
-                    <a asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <a asp-action="Index" asp-route-searchName="@ViewBag.SearchName" asp-route-searchRegNo="@ViewBag.SearchRegNo" asp-route-searchMobile="@ViewBag.SearchMobile" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         Previous
                     </a>
                 }
@@ -199,7 +257,7 @@ else
 
                 @if (Model.Page < Model.TotalPages)
                 {
-                    <a asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <a asp-action="Index" asp-route-searchName="@ViewBag.SearchName" asp-route-searchRegNo="@ViewBag.SearchRegNo" asp-route-searchMobile="@ViewBag.SearchMobile" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         Next
                     </a>
                 }
@@ -251,7 +309,7 @@ else
 
 @section Scripts {
     <script>
-        function openMeasurementModalByCustomerId(customerId) {
+        function openMeasurementModal(sizeId) {
             const modal = document.getElementById('size-modal');
             const body = document.getElementById('size-modal-body');
             const loader = document.getElementById('size-modal-loader');
@@ -261,7 +319,7 @@ else
             loader.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
             
-            fetch(`/Sizes/LatestSizePartial?customerId=${customerId}`)
+            fetch(`/Sizes/DetailsPartial/${sizeId}`)
                 .then(response => {
                     if (!response.ok) throw new Error('Failed to load size details');
                     return response.text();
@@ -277,11 +335,8 @@ else
                         <div class="p-8 text-center max-w-sm mx-auto">
                             <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-500 mb-4 font-bold text-xl">⚠️</div>
                             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Error Loading Measurements</h3>
-                            <p class="text-sm text-gray-500 mb-6">Something went wrong or no measurements exist. Let's create one!</p>
-                            <div class="flex gap-2 justify-center">
-                                <a href="/Sizes/Create?customerId=${customerId}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs transition-colors">Add Measurement</a>
-                                <button onclick="closeMeasurementModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 font-semibold rounded-lg text-xs transition-colors">Close</button>
-                            </div>
+                            <p class="text-sm text-gray-500 mb-6">Something went wrong while loading. Please try again.</p>
+                            <button onclick="closeMeasurementModal()" class="px-5 py-2.5 bg-gray-900 text-white font-semibold rounded-xl text-xs">Close</button>
                         </div>
                     `;
                     loader.classList.add('hidden');

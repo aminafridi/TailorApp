@@ -7,9 +7,8 @@ namespace TailorApp.Controllers;
 [Authorize]
 public class HomeController(ICustomerRepository customerRepo) : Controller
 {
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        var model = await customerRepo.GetDashboardStatsAsync();
-        return View(model);
+        return RedirectToAction("Index", "Sizes");
     }
 }

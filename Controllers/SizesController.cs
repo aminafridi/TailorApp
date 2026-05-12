@@ -8,6 +8,17 @@ namespace TailorApp.Controllers;
 [Authorize]
 public class SizesController(ISizeRepository sizeRepo, ICustomerRepository customerRepo) : Controller
 {
+    // GET: Sizes?search=...&page=1&pageSize=50&searchName=...&searchRegNo=...&searchMobile=...
+    public async Task<IActionResult> Index(string? search, string? searchName, string? searchRegNo, string? searchMobile, int page = 1, int pageSize = 50)
+    {
+        ViewBag.Search = search;
+        ViewBag.SearchName = searchName;
+        ViewBag.SearchRegNo = searchRegNo;
+        ViewBag.SearchMobile = searchMobile;
+        var pagedResult = await sizeRepo.GetPagedAsync(search, page, pageSize, searchName, searchRegNo, searchMobile);
+        return View(pagedResult);
+    }
+
     // GET: Sizes/Details/5
     public async Task<IActionResult> Details(int id)
     {
@@ -26,9 +37,33 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
         if (customer != null)
         {
             ViewBag.CustomerMobile = customer.MobileNo1 ?? customer.MobileNo2;
+            var sizes = (await sizeRepo.GetByCustomerIdAsync(size.Customer_ID)).OrderByDescending(x => x.SizeID).ToList();
+            ViewBag.AllSizes = sizes;
         }
 
         return PartialView("_DetailsModal", size);
+    }
+
+    // GET: Sizes/LatestSizePartial?customerId=3
+    [HttpGet]
+    public async Task<IActionResult> LatestSizePartial(int customerId)
+    {
+        var customer = await customerRepo.GetByIdAsync(customerId);
+        if (customer == null) return NotFound();
+
+        var sizes = (await sizeRepo.GetByCustomerIdAsync(customerId)).OrderByDescending(x => x.SizeID).ToList();
+        var latestSize = sizes.FirstOrDefault();
+
+        if (latestSize == null)
+        {
+            ViewBag.CustomerName = customer.CustomerName;
+            return PartialView("_NoSizesModal", customerId);
+        }
+
+        ViewBag.CustomerMobile = customer.MobileNo1 ?? customer.MobileNo2;
+        ViewBag.AllSizes = sizes;
+
+        return PartialView("_DetailsModal", latestSize);
     }
 
     // GET: Sizes/Create?customerId=3
@@ -60,7 +95,7 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
 
         await sizeRepo.CreateAsync(model);
         TempData["Success"] = $"Measurement record #{model.RegisterNo} added!";
-        return RedirectToAction("Details", "Customers", new { id = model.Customer_ID });
+        return RedirectToAction("Index", "Sizes");
     }
 
     // GET: Sizes/Edit/5
@@ -84,7 +119,7 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
 
         await sizeRepo.UpdateAsync(model);
         TempData["Success"] = "Measurement updated successfully!";
-        return RedirectToAction("Details", "Customers", new { id = model.Customer_ID });
+        return RedirectToAction("Index", "Sizes");
     }
 
     // POST: Sizes/Delete/5
@@ -101,11 +136,6 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
         await sizeRepo.DeleteAsync(id);
         TempData["Success"] = "Measurement record deleted.";
 
-        if (customerId != 0)
-        {
-            return RedirectToAction("Details", "Customers", new { id = customerId });
-        }
-        
-        return RedirectToAction("Index", "Customers");
+        return RedirectToAction("Index", "Sizes");
     }
 }

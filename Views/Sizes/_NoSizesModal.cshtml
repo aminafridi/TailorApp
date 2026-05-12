@@ -1,0 +1,21 @@
+@model int
+@{
+    var customerName = ViewBag.CustomerName as string ?? "Customer";
+}
+
+<div class="p-8 text-center max-w-sm mx-auto">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-500 mb-4 border border-amber-200 dark:border-amber-800 animate-pulse">
+        <span class="text-3xl">📐</span>
+    </div>
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">No Measurements Found</h3>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">@customerName doesn't have any measurement records yet.</p>
+    
+    <div class="flex flex-col gap-3">
+        <a href="/Sizes/Create?customerId=@Model" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/20 transform hover:-translate-y-0.5 transition-all text-sm">
+            <span class="text-lg leading-none">+</span> Add Measurement
+        </a>
+        <button onclick="closeMeasurementModal()" type="button" class="px-5 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition-colors text-sm">
+            Cancel
+        </button>
+    </div>
+</div>

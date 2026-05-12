@@ -37,6 +37,8 @@ public class Size
 
     // Navigation
     public string CustomerName { get; set; } = string.Empty;
+    public string? MobileNo1 { get; set; }
+    public string? MobileNo2 { get; set; }
 
     // Helpers
     public string BazoTypeName => BazoType switch

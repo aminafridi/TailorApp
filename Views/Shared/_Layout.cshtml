@@ -112,9 +112,9 @@
                 
                 <div class="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
                     <p class="px-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Main Menu</p>
-                    <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm border border-gray-100 dark:border-slate-800" : "text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-200")">
+                    <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" || ViewContext.RouteData.Values["controller"]?.ToString() == "Sizes" ? "bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm border border-gray-100 dark:border-slate-800" : "text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-200")">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-75" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
-                        Dashboard
+                        Measurements
                     </a>
                     <a asp-controller="Customers" asp-action="Index" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm border border-gray-100 dark:border-slate-800" : "text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-900/50 hover:text-slate-900 dark:hover:text-slate-200")">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-75" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
@@ -166,8 +166,8 @@
                                 <!-- Desktop Nav Links -->
                                 <div class="hidden md:flex space-x-1">
                                     <a asp-controller="Home" asp-action="Index" 
-                                       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400" : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200")">
-                                        Dashboard
+                                       class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" || ViewContext.RouteData.Values["controller"]?.ToString() == "Sizes" ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400" : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200")">
+                                        Measurements
                                     </a>
                                     <a asp-controller="Customers" asp-action="Index" 
                                        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400" : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200")">
@@ -202,7 +202,7 @@
                     
                     <!-- Mobile Nav (Visible only on small screens) -->
                     <div class="md:hidden border-t border-gray-200 dark:border-gray-800 flex justify-around p-2 bg-gray-50/80 dark:bg-gray-950/80 backdrop-blur-md">
-                        <a asp-controller="Home" asp-action="Index" class="flex-1 text-center py-2 text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "text-primary-600 dark:text-primary-400" : "text-gray-500 dark:text-gray-400")">Dashboard</a>
+                        <a asp-controller="Home" asp-action="Index" class="flex-1 text-center py-2 text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" || ViewContext.RouteData.Values["controller"]?.ToString() == "Sizes" ? "text-primary-600 dark:text-primary-400" : "text-gray-500 dark:text-gray-400")">Measurements</a>
                         <a asp-controller="Customers" asp-action="Index" class="flex-1 text-center py-2 text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "text-primary-600 dark:text-primary-400" : "text-gray-500 dark:text-gray-400")">Customers</a>
                     </div>
                 </nav>
