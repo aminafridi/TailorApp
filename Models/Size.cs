@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TailorApp.Models;
 
 public class Size
@@ -7,21 +9,35 @@ public class Size
     public int RegisterNo { get; set; }
 
     // Kameez Measurements
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Lambai { get; set; } = string.Empty;      // Length
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Bazo { get; set; } = string.Empty;        // Sleeve
+    [Range(1, 2, ErrorMessage = "Select a sleeve style.")]
     public int BazoType { get; set; }                       // Sleeve Type
+    [StringLength(200, ErrorMessage = "Max 200 characters.")]
     public string? BazoDetail { get; set; }                 // Sleeve Detail
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Tera { get; set; } = string.Empty;        // Shoulder
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Calar { get; set; } = string.Empty;       // Collar
+    [Range(1, 2, ErrorMessage = "Select a collar style.")]
     public int CalarType { get; set; }                      // Collar Type
+    [StringLength(200, ErrorMessage = "Max 200 characters.")]
     public string? CalarDetail { get; set; }                // Collar Detail
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Chati { get; set; } = string.Empty;       // Chest
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Kamar { get; set; } = string.Empty;       // Waist
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string Ghera { get; set; } = string.Empty;       // Hem / Width
+    [Range(1, 2, ErrorMessage = "Select a hem style.")]
     public int GheraType { get; set; }                      // Hem Type
 
     // Shalwar Measurements
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string ShalwarLambai { get; set; } = string.Empty; // Shalwar Length
+    [StringLength(50, ErrorMessage = "Max 50 characters.")]
     public string Pancha { get; set; } = string.Empty;        // Trouser Bottom
 
     // Options / Pocket Flags
@@ -31,8 +47,11 @@ public class Size
     public bool IsCheckPatiKaj { get; set; }
 
     // Additional
+    [StringLength(10, ErrorMessage = "Max 10 characters.")]
     public string? Pati { get; set; }           // Placket
+    [StringLength(500, ErrorMessage = "Max 500 characters.")]
     public string? Design { get; set; }         // Design Notes
+    [StringLength(500, ErrorMessage = "Max 500 characters.")]
     public string? OtherDetails { get; set; }   // Other Notes
 
     // Navigation

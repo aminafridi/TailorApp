@@ -75,8 +75,8 @@
             <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <form id="delete-customer-form" asp-action="Delete" asp-route-id="@Model.CustomerID" method="post">
                     @Html.AntiForgeryToken()
-                    <button type="button" 
-                            onclick="showConfirmModal(null, 'Delete @Model.CustomerName and all measurements?', null, () => document.getElementById('delete-customer-form').submit())"
+                    <button type="button" data-name="@Model.CustomerName"
+                            onclick="showConfirmModal(null, 'Delete ' + this.dataset.name + ' and all measurements?', null, () => document.getElementById('delete-customer-form').submit())"
                             class="w-full py-2.5 px-4 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/10 dark:hover:bg-red-900/20 dark:text-red-400 font-medium rounded-xl transition-colors flex justify-center items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg> Delete Customer
                     </button>

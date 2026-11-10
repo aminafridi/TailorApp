@@ -11,4 +11,9 @@ public class HomeController(ICustomerRepository customerRepo) : Controller
     {
         return RedirectToAction("Index", "Sizes");
     }
+
+    // Target of app.UseExceptionHandler("/Home/Error")
+    [AllowAnonymous]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error() => View();
 }

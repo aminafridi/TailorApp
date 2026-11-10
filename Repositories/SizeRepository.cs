@@ -52,7 +52,7 @@ public class SizeRepository(string connectionString) : ISizeRepository
         using var conn = CreateConnection();
         await conn.ExecuteAsync("sp_Sizes_Update", 
             new {
-                size.SizeID,
+                size.SizeID, size.RegisterNo,
                 size.Lambai, size.Bazo, size.BazoType, size.BazoDetail,
                 size.Tera, size.Calar, size.CalarType, size.CalarDetail,
                 size.Chati, size.Kamar, size.Ghera, size.GheraType,
@@ -72,10 +72,10 @@ public class SizeRepository(string connectionString) : ISizeRepository
             commandType: CommandType.StoredProcedure);
     }
 
-    public async Task<PagedResult<Size>> GetPagedAsync(string? search, int page = 1, int pageSize = 50, string? searchName = null, string? searchRegNo = null, string? searchMobile = null)
+    public async Task<PagedResult<Size>> GetPagedAsync(string? search, int page = 1, int pageSize = 50)
     {
         using var conn = CreateConnection();
-        int offset = (page - 1) * pageSize;
+        int offset = pageSize <= 0 ? 0 : (page - 1) * pageSize; // "all" has a single page
         int queryPageSize = pageSize <= 0 ? int.MaxValue : pageSize;
 
         var conditions = new List<string>();
@@ -93,24 +93,6 @@ public class SizeRepository(string connectionString) : ISizeRepository
             parameters.Add("Search", search);
         }
 
-        if (!string.IsNullOrEmpty(searchName))
-        {
-            conditions.Add("c.CustomerName LIKE '%' + @SearchName + '%'");
-            parameters.Add("SearchName", searchName);
-        }
-
-        if (!string.IsNullOrEmpty(searchRegNo))
-        {
-            conditions.Add("CAST(s.RegisterNo AS VARCHAR) LIKE '%' + @SearchRegNo + '%'");
-            parameters.Add("SearchRegNo", searchRegNo);
-        }
-
-        if (!string.IsNullOrEmpty(searchMobile))
-        {
-            conditions.Add("(c.MobileNo1 LIKE '%' + @SearchMobile + '%' OR c.MobileNo2 LIKE '%' + @SearchMobile + '%')");
-            parameters.Add("SearchMobile", searchMobile);
-        }
-
         string whereClause = conditions.Count > 0 
             ? "WHERE " + string.Join(" AND ", conditions) 
             : "";
@@ -121,12 +103,18 @@ public class SizeRepository(string connectionString) : ISizeRepository
             INNER JOIN Customer c ON s.Customer_ID = c.CustomerID
             {whereClause}";
 
+        // The same digits can match a register number and sit inside a mobile number,
+        // so an exact register-number match is listed first.
+        string orderBy = string.IsNullOrEmpty(search)
+            ? "ORDER BY s.SizeID DESC"
+            : "ORDER BY CASE WHEN CAST(s.RegisterNo AS VARCHAR) = @Search THEN 0 ELSE 1 END, s.SizeID DESC";
+
         string itemsSql = $@"
             SELECT s.*, c.CustomerName, c.MobileNo1, c.MobileNo2
             FROM Size s
             INNER JOIN Customer c ON s.Customer_ID = c.CustomerID
             {whereClause}
-            ORDER BY s.SizeID DESC
+            {orderBy}
             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
         var totalCount = await conn.ExecuteScalarAsync<int>(countSql, parameters);

@@ -1,6 +1,7 @@
 @model TailorApp.Models.PagedResult<TailorApp.Models.Size>
 @{
     ViewData["Title"] = "Measurements Directory";
+    string search = ViewBag.Search as string ?? "";
 }
 
 <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -15,102 +16,62 @@
     </div>
 </div>
 
-@if (!Model.Items.Any())
-{
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-12 text-center max-w-2xl mx-auto mt-8 shadow-sm">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 mb-4">
-            <span class="text-3xl">📐</span>
+<div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
+    <!-- Top Search and Pagination Controls -->
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/20 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 shrink-0">
+            <span>Show</span>
+            <select id="pageSizeSelect" onchange="const u = new URL(window.location.href); u.searchParams.set('page', '1'); u.searchParams.set('pageSize', this.value); window.location.href = u.toString();" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-2 py-1.5 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none">
+                @Html.Raw(Model.PageSize == 50 ? "<option value=\"50\" selected>50</option>" : "<option value=\"50\">50</option>")
+                @Html.Raw(Model.PageSize == 100 ? "<option value=\"100\" selected>100</option>" : "<option value=\"100\">100</option>")
+                @Html.Raw(Model.PageSize == 200 ? "<option value=\"200\" selected>200</option>" : "<option value=\"200\">200</option>")
+                @Html.Raw(Model.PageSize > 200 ? "<option value=\"-1\" selected>All</option>" : "<option value=\"-1\">All</option>")
+            </select>
+            <span>entries</span>
         </div>
-        @if (!string.IsNullOrEmpty(ViewBag.Search) || !string.IsNullOrEmpty(ViewBag.SearchName) || !string.IsNullOrEmpty(ViewBag.SearchRegNo) || !string.IsNullOrEmpty(ViewBag.SearchMobile))
-        {
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No results found</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">We couldn't find any measurements matching your search filters.</p>
-            <a asp-action="Index" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">Clear search</a>
-        }
-        else
-        {
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No measurements yet</h2>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">No measurement records are registered yet. Register a customer to get started.</p>
-            <a asp-controller="Customers" asp-action="Create" class="inline-flex items-center px-6 py-3 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white text-white dark:text-gray-900 font-medium rounded-xl transition-colors">
-                Add Customer
-            </a>
-        }
-    </div>
-}
-else
-{
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
-        <!-- Top Search and Pagination Controls -->
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/20 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 shrink-0">
-                <span>Show</span>
-                <select id="pageSizeSelect" onchange="window.location.href='?searchName=@(ViewBag.SearchName)&searchRegNo=@(ViewBag.SearchRegNo)&searchMobile=@(ViewBag.SearchMobile)&page=1&pageSize=' + this.value" class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-md px-2 py-1.5 text-sm focus:ring-primary-500 focus:border-primary-500 outline-none">
-                    @Html.Raw(Model.PageSize == 50 ? "<option value=\"50\" selected>50</option>" : "<option value=\"50\">50</option>")
-                    @Html.Raw(Model.PageSize == 100 ? "<option value=\"100\" selected>100</option>" : "<option value=\"100\">100</option>")
-                    @Html.Raw(Model.PageSize == 200 ? "<option value=\"200\" selected>200</option>" : "<option value=\"200\">200</option>")
-                    @Html.Raw(Model.PageSize > 200 ? "<option value=\"-1\" selected>All</option>" : "<option value=\"-1\">All</option>")
-                </select>
-                <span>entries</span>
+
+        <!-- One box searches name, mobile and register number. Results update while typing (see Scripts). -->
+        <form method="get" class="m-0 flex-1 lg:max-w-xl">
+            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-sm">
+                    🔍
+                </div>
+                <input type="text" name="search" id="searchInput" value="@search" autocomplete="off"
+                       class="w-full pl-10 pr-10 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                       placeholder="Search name, mobile or register no..." />
+                <button type="button" id="searchClear" title="Clear search" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 @(search.Length == 0 ? "hidden" : "")">✕</button>
             </div>
-            
-            <form method="get" class="m-0 flex-1">
-                <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <!-- Name Search -->
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs">
-                            👤
-                        </div>
-                        <input type="text" name="searchName" value="@ViewBag.SearchName" 
-                               class="w-full pl-8 pr-8 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs" 
-                               placeholder="Customer Name..." />
-                        @if (!string.IsNullOrEmpty(ViewBag.SearchName))
-                        {
-                            <button type="button" onclick="this.previousElementSibling.value=''; this.form.submit();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</button>
-                        }
-                    </div>
+            <input type="submit" class="hidden" />
+        </form>
+    </div>
 
-                    <!-- Register No Search -->
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs">
-                            🔢
-                        </div>
-                        <input type="text" name="searchRegNo" value="@ViewBag.SearchRegNo" 
-                               class="w-full pl-8 pr-8 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs" 
-                               placeholder="Register No..." />
-                        @if (!string.IsNullOrEmpty(ViewBag.SearchRegNo))
-                        {
-                            <button type="button" onclick="this.previousElementSibling.value=''; this.form.submit();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</button>
-                        }
-                    </div>
-
-                    <!-- Mobile Contacts Search -->
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-xs">
-                            📞
-                        </div>
-                        <input type="text" name="searchMobile" value="@ViewBag.SearchMobile" 
-                               class="w-full pl-8 pr-8 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-xs" 
-                               placeholder="Mobile No..." />
-                        @if (!string.IsNullOrEmpty(ViewBag.SearchMobile))
-                        {
-                            <button type="button" onclick="this.previousElementSibling.value=''; this.form.submit();" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">✕</button>
-                        }
-                    </div>
-                </div>
-                <input type="submit" class="hidden" />
-            </form>
-
-            @if (!string.IsNullOrEmpty(ViewBag.SearchName) || !string.IsNullOrEmpty(ViewBag.SearchRegNo) || !string.IsNullOrEmpty(ViewBag.SearchMobile))
+    <!-- Replaced by the live search, so the search box above keeps its focus -->
+    <div id="measurements-results">
+    @if (!Model.Items.Any())
+    {
+        <div class="p-12 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 mb-4">
+                <span class="text-3xl">📐</span>
+            </div>
+            @if (search.Length > 0)
             {
-                <div class="shrink-0">
-                    <a asp-action="Index" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40 dark:border-red-900/50 rounded-lg transition-all" title="Clear all filters">
-                        ✕ Reset
-                    </a>
-                </div>
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No results found</h2>
+                <p class="text-gray-500 dark:text-gray-400 mb-6">We couldn't find any measurements matching "@search".</p>
+                <a asp-action="Index" class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium">Clear search</a>
+            }
+            else
+            {
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No measurements yet</h2>
+                <p class="text-gray-500 dark:text-gray-400 mb-6">No measurement records are registered yet. Register a customer to get started.</p>
+                <a asp-controller="Customers" asp-action="Create" class="inline-flex items-center px-6 py-3 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white text-white dark:text-gray-900 font-medium rounded-xl transition-colors">
+                    Add Customer
+                </a>
             }
         </div>
-        
+    }
+    else
+    {
         <!-- Desktop Table View -->
         <div class="hidden md:block overflow-x-auto">
             <table id="measurementsTable" class="w-full text-left border-collapse">
@@ -133,7 +94,7 @@ else
                                 @(rowNum++)
                             </td>
                             <td class="px-6 py-4">
-                                <a class="flex items-center gap-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                <a asp-controller="Customers" asp-action="Details" asp-route-id="@c.Customer_ID" class="flex items-center gap-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                     <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm border border-primary-200 dark:border-primary-800/50">
                                         @(!string.IsNullOrEmpty(c.CustomerName) ? c.CustomerName[0].ToString().ToUpper() : "C")
                                     </div>
@@ -244,7 +205,7 @@ else
             <div class="flex items-center gap-1">
                 @if (Model.Page > 1)
                 {
-                    <a asp-action="Index" asp-route-searchName="@ViewBag.SearchName" asp-route-searchRegNo="@ViewBag.SearchRegNo" asp-route-searchMobile="@ViewBag.SearchMobile" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <a asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         Previous
                     </a>
                 }
@@ -257,7 +218,7 @@ else
 
                 @if (Model.Page < Model.TotalPages)
                 {
-                    <a asp-action="Index" asp-route-searchName="@ViewBag.SearchName" asp-route-searchRegNo="@ViewBag.SearchRegNo" asp-route-searchMobile="@ViewBag.SearchMobile" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <a asp-action="Index" asp-route-search="@ViewBag.Search" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         Next
                     </a>
                 }
@@ -269,8 +230,9 @@ else
                 }
             </div>
         </div>
+    }
     </div>
-}
+</div>
 
 <!-- AJAX Sizing Details Modal Container -->
 <div id="size-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -356,5 +318,60 @@ else
                 closeMeasurementModal();
             }
         });
+
+        // Live search: loads this same page for the typed term and swaps in its results list
+        (function () {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('searchClear');
+            const results = document.getElementById('measurements-results');
+            let timer = null;
+            let latestRequest = 0;
+
+            function runSearch() {
+                const url = new URL(window.location.href);
+                const term = input.value.trim();
+                if (term) url.searchParams.set('search', term);
+                else url.searchParams.delete('search');
+                url.searchParams.delete('page');
+                clearBtn.classList.toggle('hidden', input.value.length === 0);
+
+                const requestNo = ++latestRequest;
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Search failed');
+                        return response.text();
+                    })
+                    .then(html => {
+                        if (requestNo !== latestRequest) return; // a newer search has started
+                        const fresh = new DOMParser().parseFromString(html, 'text/html').getElementById('measurements-results');
+                        if (!fresh) { window.location.href = url.toString(); return; } // e.g. login expired
+                        results.innerHTML = fresh.innerHTML;
+                        history.replaceState(null, '', url);
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        showToast('Search failed. Press Enter to try again.', 'error');
+                    });
+            }
+
+            input.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(runSearch, 300);
+            });
+
+            clearBtn.addEventListener('click', () => {
+                input.value = '';
+                input.focus();
+                clearTimeout(timer);
+                runSearch();
+            });
+
+            // Start with the cursor in the search box. Only with a mouse: on a phone
+            // this would open the keyboard over the list every time the page loads.
+            if (window.matchMedia('(pointer: fine)').matches) {
+                input.focus();
+                input.select();
+            }
+        })();
     </script>
 }

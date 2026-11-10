@@ -11,6 +11,7 @@ public class CustomersController(ICustomerRepository customerRepo, ISizeReposito
     // GET: Customers?search=...&page=1&pageSize=50
     public async Task<IActionResult> Index(string? search, int page = 1, int pageSize = 50)
     {
+        if (page < 1) page = 1;
         ViewBag.Search = search;
         var pagedResult = await customerRepo.GetPagedAsync(search, page, pageSize);
         return View(pagedResult);

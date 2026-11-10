@@ -12,7 +12,7 @@ public class CustomerRepository(string connectionString) : ICustomerRepository
     public async Task<PagedResult<Customer>> GetPagedAsync(string? search, int page = 1, int pageSize = 50)
     {
         using var conn = CreateConnection();
-        int offset = (page - 1) * pageSize;
+        int offset = pageSize <= 0 ? 0 : (page - 1) * pageSize; // "all" has a single page
         int queryPageSize = pageSize <= 0 ? int.MaxValue : pageSize; // handle "all"
 
         using var multi = await conn.QueryMultipleAsync("sp_Customers_GetPaged", 

@@ -1,5 +1,10 @@
 /* ===== IMPORTS ===== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+
+/* Urdu text: uses Jameel Noori Nastaleeq when installed, otherwise the Noto web font */
+.urdu-text {
+  font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
+}
 
 /* Hide scrollbar for a cleaner look */
 ::-webkit-scrollbar {

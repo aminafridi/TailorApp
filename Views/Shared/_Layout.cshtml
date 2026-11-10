@@ -372,32 +372,41 @@
         }
 
         // Self-contained helpers for Save & Share
-        function openWhatsApp() {
-            const url = `https://api.whatsapp.com/send`;
+        // Local numbers are stored like 03XXXXXXXXX; WhatsApp needs the country code (92) and digits only
+        function toWhatsAppNumber(mobile) {
+            let digits = (mobile || '').replace(/\D/g, '');
+            if (digits.startsWith('00')) digits = digits.substring(2);
+            else if (digits.startsWith('0')) digits = '92' + digits.substring(1);
+            return digits.length >= 11 ? digits : '';
+        }
+
+        function openWhatsApp(mobile) {
+            const number = toWhatsAppNumber(mobile);
+            const url = number ? `https://api.whatsapp.com/send?phone=${number}` : `https://api.whatsapp.com/send`;
             window.open(url, '_blank');
         }
 
-        function fallbackShare(blob) {
+        function fallbackShare(blob, mobile) {
             if (navigator.clipboard && navigator.clipboard.write) {
                 try {
                     navigator.clipboard.write([
                         new ClipboardItem({ 'image/png': blob })
                     ]).then(() => {
                         showToast("Slip image copied to clipboard! Opening WhatsApp... Just Paste (Ctrl+V) in chat.", "success");
-                        openWhatsApp();
+                        openWhatsApp(mobile);
                     }).catch(err => {
                         console.error("Clipboard copy failed: ", err);
                         showToast("Opening WhatsApp... Paste the slip image inside the chat.", "info");
-                        openWhatsApp();
+                        openWhatsApp(mobile);
                     });
                 } catch (err) {
                     console.error("ClipboardItem error: ", err);
                     showToast("Opening WhatsApp... Paste the slip image inside the chat.", "info");
-                    openWhatsApp();
+                    openWhatsApp(mobile);
                 }
             } else {
                 showToast("Opening WhatsApp...", "info");
-                openWhatsApp();
+                openWhatsApp(mobile);
             }
         }
 
@@ -436,7 +445,7 @@
             });
         };
 
-        window.shareMeasurementSlip = function(registerNo, customerName) {
+        window.shareMeasurementSlip = function(registerNo, customerName, mobile) {
             const card = document.getElementById('measurement-capture-card');
             if (!card) return;
 
@@ -465,7 +474,7 @@
                         });
                     } else {
                         // PC/Desktop Fallback: Copy to clipboard and open WhatsApp
-                        fallbackShare(blob);
+                        fallbackShare(blob, mobile);
                     }
                 }, 'image/png', 1.0);
             }).catch(err => {

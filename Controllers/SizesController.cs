@@ -8,15 +8,32 @@ namespace TailorApp.Controllers;
 [Authorize]
 public class SizesController(ISizeRepository sizeRepo, ICustomerRepository customerRepo) : Controller
 {
-    // GET: Sizes?search=...&page=1&pageSize=50&searchName=...&searchRegNo=...&searchMobile=...
-    public async Task<IActionResult> Index(string? search, string? searchName, string? searchRegNo, string? searchMobile, int page = 1, int pageSize = 50)
+    // GET: Sizes?search=...&page=1&pageSize=50
+    // One search term covers customer name, mobile numbers and register number.
+    public async Task<IActionResult> Index(string? search, int page = 1, int pageSize = 50)
     {
+        if (page < 1) page = 1;
+        search = NormalizeSearch(search);
         ViewBag.Search = search;
-        ViewBag.SearchName = searchName;
-        ViewBag.SearchRegNo = searchRegNo;
-        ViewBag.SearchMobile = searchMobile;
-        var pagedResult = await sizeRepo.GetPagedAsync(search, page, pageSize, searchName, searchRegNo, searchMobile);
+        var pagedResult = await sizeRepo.GetPagedAsync(search, page, pageSize);
         return View(pagedResult);
+    }
+
+    // Numbers are stored with English digits and no separators, so a number typed on an
+    // Urdu keyboard or written like "0345-1234567" / "+92 345 1234567" is converted first.
+    private static string? NormalizeSearch(string? search)
+    {
+        if (string.IsNullOrWhiteSpace(search)) return null;
+
+        var term = new string(search.Trim().Select(c =>
+            c is >= '۰' and <= '۹' ? (char)('0' + (c - '۰')) :
+            c is >= '٠' and <= '٩' ? (char)('0' + (c - '٠')) : c).ToArray());
+
+        if (!term.All(c => char.IsAsciiDigit(c) || c is ' ' or '-' or '+')) return term;
+
+        var digits = new string(term.Where(char.IsAsciiDigit).ToArray());
+        if (term.StartsWith('+') && digits.StartsWith("92")) digits = "0" + digits[2..];
+        return digits.Length > 0 ? digits : term;
     }
 
     // GET: Sizes/Details/5
@@ -24,6 +41,9 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
     {
         var size = await sizeRepo.GetByIdAsync(id);
         if (size is null) return NotFound();
+
+        var customer = await customerRepo.GetByIdAsync(size.Customer_ID);
+        ViewBag.CustomerMobile = customer?.MobileNo1 ?? customer?.MobileNo2;
         return View(size);
     }
 

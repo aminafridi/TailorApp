@@ -166,12 +166,14 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE sp_Sizes_GetNextRegisterNo
-    @CustomerId INT
+    @CustomerId INT = NULL -- not used: register numbers run shop-wide, not per customer
 AS
 BEGIN
     SET NOCOUNT ON;
+    -- Continue from the highest number among the latest entries, so one old
+    -- mistyped number does not make the whole sequence jump.
     SELECT ISNULL(MAX(RegisterNo), 0) + 1
-    FROM Size WHERE Customer_ID = @CustomerId;
+    FROM (SELECT TOP 50 RegisterNo FROM Size ORDER BY SizeID DESC) AS recent;
 END
 GO
 
@@ -221,6 +223,7 @@ GO
 
 CREATE OR ALTER PROCEDURE sp_Sizes_Update
     @SizeID INT,
+    @RegisterNo INT = NULL, -- NULL keeps the current number
     @Lambai NVARCHAR(50),
     @Bazo NVARCHAR(50),
     @BazoType INT,
@@ -246,6 +249,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     UPDATE Size SET
+        RegisterNo = ISNULL(@RegisterNo, RegisterNo),
         Lambai = @Lambai, Bazo = @Bazo, BazoType = @BazoType, BazoDetail = @BazoDetail,
         Tera = @Tera, Calar = @Calar, CalarType = @CalarType, CalarDetail = @CalarDetail,
         Chati = @Chati, Kamar = @Kamar, Ghera = @Ghera, GheraType = @GheraType,
