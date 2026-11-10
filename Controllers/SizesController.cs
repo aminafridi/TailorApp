@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Data.SqlClient;
 using TailorApp.Models;
 using TailorApp.Repositories;
 
@@ -8,33 +9,56 @@ namespace TailorApp.Controllers;
 [Authorize]
 public class SizesController(ISizeRepository sizeRepo, ICustomerRepository customerRepo) : Controller
 {
-    // GET: Sizes?search=...&page=1&pageSize=50
-    // One search term covers customer name, mobile numbers and register number.
-    public async Task<IActionResult> Index(string? search, int page = 1, int pageSize = 50)
+    // GET: Sizes?name=...&regNo=...&mobile=...&page=1&pageSize=50
+    // Each box searches its own field; filled boxes are combined.
+    public async Task<IActionResult> Index(string? name, string? regNo, string? mobile, int page = 1, int pageSize = 50)
     {
         if (page < 1) page = 1;
-        search = NormalizeSearch(search);
-        ViewBag.Search = search;
-        var pagedResult = await sizeRepo.GetPagedAsync(search, page, pageSize);
+
+        var regDigits = Digits(regNo);
+        var mobileDigits = Digits(mobile);
+        if (mobile?.TrimStart().StartsWith('+') == true && mobileDigits.StartsWith("92"))
+            mobileDigits = "0" + mobileDigits[2..]; // +92 345... is stored as 0345...
+
+        var filter = new SizeSearch
+        {
+            Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
+            RegisterNo = int.TryParse(regDigits, out var reg) ? reg : null,
+            Mobile = mobileDigits.Length > 0 ? mobileDigits : null
+        };
+
+        // Show the boxes exactly as typed
+        ViewBag.Name = name?.Trim() ?? "";
+        ViewBag.RegNo = regNo?.Trim() ?? "";
+        ViewBag.Mobile = mobile?.Trim() ?? "";
+        ViewBag.HasFilter = !filter.IsEmpty;
+
+        var pagedResult = await sizeRepo.GetPagedAsync(filter, page, pageSize);
         return View(pagedResult);
     }
 
-    // Numbers are stored with English digits and no separators, so a number typed on an
-    // Urdu keyboard or written like "0345-1234567" / "+92 345 1234567" is converted first.
-    private static string? NormalizeSearch(string? search)
+    // Numbers are stored with English digits and no separators, so digits typed on an
+    // Urdu keyboard are converted and spaces, dashes and "+" are dropped.
+    private static string Digits(string? text) =>
+        string.IsNullOrWhiteSpace(text) ? "" : new string(text
+            .Select(c => c is >= '۰' and <= '۹' ? (char)('0' + (c - '۰')) :
+                         c is >= '٠' and <= '٩' ? (char)('0' + (c - '٠')) : c)
+            .Where(char.IsAsciiDigit).ToArray());
+
+    // Adds a form error when another record already uses the register number.
+    private async Task CheckRegisterNoIsFreeAsync(int registerNo, int? exceptSizeId)
     {
-        if (string.IsNullOrWhiteSpace(search)) return null;
+        var owner = await sizeRepo.GetRegisterNoOwnerAsync(registerNo, exceptSizeId);
+        if (owner is null) return;
 
-        var term = new string(search.Trim().Select(c =>
-            c is >= '۰' and <= '۹' ? (char)('0' + (c - '۰')) :
-            c is >= '٠' and <= '٩' ? (char)('0' + (c - '٠')) : c).ToArray());
-
-        if (!term.All(c => char.IsAsciiDigit(c) || c is ' ' or '-' or '+')) return term;
-
-        var digits = new string(term.Where(char.IsAsciiDigit).ToArray());
-        if (term.StartsWith('+') && digits.StartsWith("92")) digits = "0" + digits[2..];
-        return digits.Length > 0 ? digits : term;
+        int next = await sizeRepo.GetNextRegisterNoAsync(0);
+        ModelState.AddModelError(nameof(Size.RegisterNo),
+            $"Register no {registerNo} is already used by {owner}. Next free number: {next}.");
     }
+
+    // The stored procedures refuse a duplicate too (error 50010), in case two
+    // people save the same number at the same moment.
+    private static bool IsDuplicateRegisterNo(SqlException ex) => ex.Number == 50010;
 
     // GET: Sizes/Details/5
     public async Task<IActionResult> Details(int id)
@@ -106,6 +130,21 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Size model)
     {
+        if (ModelState.IsValid)
+            await CheckRegisterNoIsFreeAsync(model.RegisterNo, null);
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await sizeRepo.CreateAsync(model);
+            }
+            catch (SqlException ex) when (IsDuplicateRegisterNo(ex))
+            {
+                await CheckRegisterNoIsFreeAsync(model.RegisterNo, null);
+            }
+        }
+
         if (!ModelState.IsValid)
         {
             var customer = await customerRepo.GetByIdAsync(model.Customer_ID);
@@ -113,7 +152,6 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
             return View(model);
         }
 
-        await sizeRepo.CreateAsync(model);
         TempData["Success"] = $"Measurement record #{model.RegisterNo} added!";
         return RedirectToAction("Index", "Sizes");
     }
@@ -131,13 +169,33 @@ public class SizesController(ISizeRepository sizeRepo, ICustomerRepository custo
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Size model)
     {
+        var existing = await sizeRepo.GetByIdAsync(model.SizeID);
+        if (existing is null) return NotFound();
+
+        // Some old records share a number from before this rule; they can still be
+        // edited, and only a changed number has to be free.
+        bool numberChanged = existing.RegisterNo != model.RegisterNo;
+        if (ModelState.IsValid && numberChanged)
+            await CheckRegisterNoIsFreeAsync(model.RegisterNo, model.SizeID);
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await sizeRepo.UpdateAsync(model);
+            }
+            catch (SqlException ex) when (IsDuplicateRegisterNo(ex))
+            {
+                await CheckRegisterNoIsFreeAsync(model.RegisterNo, model.SizeID);
+            }
+        }
+
         if (!ModelState.IsValid)
         {
-            ViewBag.CustomerName = model.CustomerName;
+            ViewBag.CustomerName = existing.CustomerName;
             return View(model);
         }
 
-        await sizeRepo.UpdateAsync(model);
         TempData["Success"] = "Measurement updated successfully!";
         return RedirectToAction("Index", "Sizes");
     }

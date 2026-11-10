@@ -72,7 +72,18 @@ public class SizeRepository(string connectionString) : ISizeRepository
             commandType: CommandType.StoredProcedure);
     }
 
-    public async Task<PagedResult<Size>> GetPagedAsync(string? search, int page = 1, int pageSize = 50)
+    public async Task<string?> GetRegisterNoOwnerAsync(int registerNo, int? exceptSizeId = null)
+    {
+        using var conn = CreateConnection();
+        return await conn.QueryFirstOrDefaultAsync<string>(@"
+            SELECT TOP 1 c.CustomerName
+            FROM Size s
+            INNER JOIN Customer c ON s.Customer_ID = c.CustomerID
+            WHERE s.RegisterNo = @RegisterNo AND (@ExceptSizeId IS NULL OR s.SizeID <> @ExceptSizeId)",
+            new { RegisterNo = registerNo, ExceptSizeId = exceptSizeId });
+    }
+
+    public async Task<PagedResult<Size>> GetPagedAsync(SizeSearch filter, int page = 1, int pageSize = 50)
     {
         using var conn = CreateConnection();
         int offset = pageSize <= 0 ? 0 : (page - 1) * pageSize; // "all" has a single page
@@ -83,38 +94,40 @@ public class SizeRepository(string connectionString) : ISizeRepository
         parameters.Add("Offset", offset);
         parameters.Add("PageSize", queryPageSize);
 
-        if (!string.IsNullOrEmpty(search))
+        if (!string.IsNullOrEmpty(filter.Name))
         {
-            conditions.Add(@"(@Search IS NULL 
-               OR c.CustomerName LIKE '%' + @Search + '%'
-               OR c.MobileNo1 LIKE '%' + @Search + '%'
-               OR c.MobileNo2 LIKE '%' + @Search + '%'
-               OR CAST(s.RegisterNo AS VARCHAR) LIKE '%' + @Search + '%')");
-            parameters.Add("Search", search);
+            conditions.Add("c.CustomerName LIKE '%' + @Name + '%'");
+            parameters.Add("Name", filter.Name);
         }
 
-        string whereClause = conditions.Count > 0 
-            ? "WHERE " + string.Join(" AND ", conditions) 
+        if (filter.RegisterNo is not null)
+        {
+            conditions.Add("s.RegisterNo = @RegisterNo");
+            parameters.Add("RegisterNo", filter.RegisterNo);
+        }
+
+        if (!string.IsNullOrEmpty(filter.Mobile))
+        {
+            conditions.Add("(c.MobileNo1 LIKE '%' + @Mobile + '%' OR c.MobileNo2 LIKE '%' + @Mobile + '%')");
+            parameters.Add("Mobile", filter.Mobile);
+        }
+
+        string whereClause = conditions.Count > 0
+            ? "WHERE " + string.Join(" AND ", conditions)
             : "";
 
         string countSql = $@"
-            SELECT COUNT(*) 
+            SELECT COUNT(*)
             FROM Size s
             INNER JOIN Customer c ON s.Customer_ID = c.CustomerID
             {whereClause}";
-
-        // The same digits can match a register number and sit inside a mobile number,
-        // so an exact register-number match is listed first.
-        string orderBy = string.IsNullOrEmpty(search)
-            ? "ORDER BY s.SizeID DESC"
-            : "ORDER BY CASE WHEN CAST(s.RegisterNo AS VARCHAR) = @Search THEN 0 ELSE 1 END, s.SizeID DESC";
 
         string itemsSql = $@"
             SELECT s.*, c.CustomerName, c.MobileNo1, c.MobileNo2
             FROM Size s
             INNER JOIN Customer c ON s.Customer_ID = c.CustomerID
             {whereClause}
-            {orderBy}
+            ORDER BY s.SizeID DESC
             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
         var totalCount = await conn.ExecuteScalarAsync<int>(countSql, parameters);

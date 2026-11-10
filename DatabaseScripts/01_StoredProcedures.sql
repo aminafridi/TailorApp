@@ -172,8 +172,15 @@ BEGIN
     SET NOCOUNT ON;
     -- Continue from the highest number among the latest entries, so one old
     -- mistyped number does not make the whole sequence jump.
-    SELECT ISNULL(MAX(RegisterNo), 0) + 1
-    FROM (SELECT TOP 50 RegisterNo FROM Size ORDER BY SizeID DESC) AS recent;
+    DECLARE @Next INT = (
+        SELECT ISNULL(MAX(RegisterNo), 0) + 1
+        FROM (SELECT TOP 50 RegisterNo FROM Size ORDER BY SizeID DESC) AS recent);
+
+    -- Register numbers are unique, so skip any number an older record already uses.
+    WHILE EXISTS (SELECT 1 FROM Size WHERE RegisterNo = @Next)
+        SET @Next += 1;
+
+    SELECT @Next;
 END
 GO
 
@@ -204,6 +211,16 @@ CREATE OR ALTER PROCEDURE sp_Sizes_Create
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRAN;
+
+    -- Register numbers are unique. The lock stops two saves taking the same number at once.
+    IF EXISTS (SELECT 1 FROM Size WITH (UPDLOCK, HOLDLOCK) WHERE RegisterNo = @RegisterNo)
+    BEGIN
+        ROLLBACK;
+        THROW 50010, N'This register number is already in use.', 1;
+    END
+
     INSERT INTO Size (
         Customer_ID, RegisterNo, Lambai, Bazo, BazoType, BazoDetail,
         Tera, Calar, CalarType, CalarDetail, Chati, Kamar,
@@ -217,7 +234,10 @@ BEGIN
         @IsDoubleSidePocket, @IsFrontPocket, @IsShalwarPocket, @IsCheckPatiKaj,
         @Pati, @Design, @OtherDetails
     );
-    SELECT CAST(SCOPE_IDENTITY() AS INT);
+    DECLARE @NewId INT = CAST(SCOPE_IDENTITY() AS INT);
+
+    COMMIT;
+    SELECT @NewId;
 END
 GO
 
@@ -248,6 +268,20 @@ CREATE OR ALTER PROCEDURE sp_Sizes_Update
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRAN;
+
+    -- A changed register number must be free. Some old records share a number from
+    -- before this rule, so an unchanged number is accepted as it is.
+    IF @RegisterNo IS NOT NULL
+       AND @RegisterNo <> (SELECT RegisterNo FROM Size WHERE SizeID = @SizeID)
+       AND EXISTS (SELECT 1 FROM Size WITH (UPDLOCK, HOLDLOCK)
+                   WHERE RegisterNo = @RegisterNo AND SizeID <> @SizeID)
+    BEGIN
+        ROLLBACK;
+        THROW 50010, N'This register number is already in use.', 1;
+    END
+
     UPDATE Size SET
         RegisterNo = ISNULL(@RegisterNo, RegisterNo),
         Lambai = @Lambai, Bazo = @Bazo, BazoType = @BazoType, BazoDetail = @BazoDetail,
@@ -258,6 +292,8 @@ BEGIN
         IsShalwarPocket = @IsShalwarPocket, IsCheckPatiKaj = @IsCheckPatiKaj,
         Pati = @Pati, Design = @Design, OtherDetails = @OtherDetails
     WHERE SizeID = @SizeID;
+
+    COMMIT;
 END
 GO
 
